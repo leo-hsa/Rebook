@@ -1,12 +1,8 @@
 from fastapi import FastAPI
-from core.database import engine
-import models
+from core.database import init_db
 
 app = FastAPI()
 
-
-models.Base.metadata.create_all(bind=engine)
-
-@app.get("/")
-def read_root():
-    return {"message": "Hello World"}
+@app.on_event("startup")
+def startup():
+    init_db()
