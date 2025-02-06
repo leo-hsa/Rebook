@@ -1,0 +1,63 @@
+# Операционная система
+__pycache__/
+*.py[cod]
+*.so
+*.DS_Store
+
+# Python-окружение
+venv/
+env/
+.idea/
+.vscode/
+*.swp
+
+# Лог-файлы
+logs/
+*.log
+debug.log
+
+# Переменные окружения и конфигурации
+.env
+.env.local
+*.secret
+
+# Alembic (если добавим позже)
+alembic/versions/
+
+# Файлы зависимостей
+Pipfile
+Pipfile.lock
+poetry.lock
+
+# Базы данных (если локальные)
+*.sqlite
+*.db
+*.db-journal
+
+# Node.js и React
+node_modules/
+*.lock
+dist/
+build/
+*.cache
+.npm/
+
+# React-specific
+/public/hot/
+*.map
+.eslintcache
+.next/
+
+# Сборочные файлы
+coverage/
+jest-cache/
+jest-stare/
+
+# Docker (если используешь)
+docker-compose.override.yml
+*.pid
+
+# Кэш и временные файлы
+*.bak
+*.tmp
+*.out
