@@ -8,7 +8,6 @@ load_dotenv()
 
 DATABASE_URL = os.getenv("DATABASE_URL")
 
-
 engine = create_engine(DATABASE_URL)
 
 
@@ -26,5 +25,5 @@ def get_db():
 
 
 def init_db():
-    from app.models import user, book 
+    import models 
     Base.metadata.create_all(bind=engine)
