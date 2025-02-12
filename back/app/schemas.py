@@ -49,7 +49,7 @@ class UserCreate(BaseModel):
     password: str  
 
 class UserLogin(BaseModel):
-    email: EmailStr
+    nickname: str
     password: str
     
 class UserOut(BaseModel):
