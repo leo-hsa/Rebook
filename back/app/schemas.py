@@ -60,4 +60,21 @@ class UserOut(BaseModel):
     class Config:
         orm_mode = True
 
+class PendingBookBase(BaseModel):
+    title: str
+    author_name: str
+    
+class PendingBookCreate(PendingBookBase):
+    pass
 
+class PendingBookUpdate(BaseModel):
+    status_id: int
+
+
+class PendingBookOut(PendingBookBase):
+    id: int
+    requsted_by: int
+    status: str
+    
+    class Config:
+        orm_mode = True

@@ -1,6 +1,7 @@
 from fastapi import FastAPI
-from core.database import init_db
+from core.database import init_db, SessionLocal
 from routers import auth, author, book, user
+import crud
 
 app = FastAPI()
 
@@ -12,3 +13,7 @@ app.include_router(user.router, prefix="/users", tags=["user"])
 @app.on_event("startup")
 def startup():
     init_db()
+    db = SessionLocal()
+    crud.init_statuses(db)
+    db.close()
+
