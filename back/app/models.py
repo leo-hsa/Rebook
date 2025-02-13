@@ -37,15 +37,27 @@ class User(Base):
     nickname = Column(String(255), nullable=False, unique=True)
     email = Column(String(255), unique=True, index=True, nullable=False)
     hashed_password = Column(String(255), nullable=False)
+    role_id = Column(Integer, ForeignKey('roles.id'), nullable=False, default=2)
     
+    role = relationship("Role", back_populates='rolls')
     requests = relationship("PendingBook", back_populates="user")
 
+
+class Role(Base):
+    __tablename__ = 'roles'
+    id = Column(Integer, primary_key=True, index=True)
+    name = Column(String(50), unique=True, nullable=False)
+    
+    rolls = relationship("User", back_populates="role")
+    
 class PendingBookStatus(Base):
     __tablename__ = "pending_book_statuses"
     
     id = Column(Integer, primary_key=True, index=True)
     name = Column(String(50), unique=True, nullable=False)
     pending_books = relationship("PendingBook", back_populates="status")
+    
+    
 class PendingBook(Base):
     __tablename__ = "pending_books"
     

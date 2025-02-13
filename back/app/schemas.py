@@ -56,10 +56,20 @@ class UserOut(BaseModel):
     id: int
     nickname: str
     email: EmailStr
+    role_id: int
     
     class Config:
         orm_mode = True
 
+class RoleOut(BaseModel):
+    id: int
+    name: str
+    
+    class Config:
+        orm_mode = True
+class Token(BaseModel):
+    access_token: str
+    token_type: str
 class PendingBookBase(BaseModel):
     title: str
     author_name: str

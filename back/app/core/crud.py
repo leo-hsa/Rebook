@@ -1,5 +1,5 @@
 from sqlalchemy.orm import Session
-from models import PendingBook, PendingBookStatus
+from models import PendingBook, PendingBookStatus, Role
 import schemas
 
 def create_pending_book(db: Session, book_data:schemas.PendingBookCreate, user_id: int):
@@ -44,6 +44,14 @@ def init_statuses(db: Session):
     statuses = ["pending", "approved", "rejected"]
     for status in statuses:
         if not db.query(PendingBookStatus).filter_by(name=status).first():
-            db.add(PendingBookStatus).filter_by(name=status).first()
+            new_status = PendingBookStatus(name=status)  
+            db.add(new_status)
+            
+    roles = ["admin", "user"]
+    for role in roles:
+        if not db.query(Role).filter_by(name=role).first():
+            new_role = Role(name=role)
+            db.add(new_role)
+            
     db.commit()
     

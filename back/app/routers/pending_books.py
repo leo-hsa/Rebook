@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 import schemas
-import crud 
+import core.crud as crud
 from core.database import get_db
 from models import PendingBookStatus
 
