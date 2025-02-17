@@ -3,7 +3,7 @@ import { login } from "../api/auth";
 import { useNavigate } from "react-router-dom";
 
 const LoginPage = () => {
-  const [form, setForm] = useState({ username: "", password: "" });
+  const [form, setForm] = useState({ email: "", password: "" }); // Используем email вместо username
   const [error, setError] = useState("");
   const navigate = useNavigate();
 
@@ -14,9 +14,12 @@ const LoginPage = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const data = await login(form);
-      localStorage.setItem("nickname", data.nickname); // Сохраняем никнейм
-      navigate("/profile");
+      const data = await login({
+        username: form.email, // Передаём email в username
+        password: form.password,
+      });
+      localStorage.setItem("nickname", data.nickname); // Сохраняем никнейм в локальное хранилище
+      navigate("/profile"); // Переход на страницу профиля
     } catch (err) {
       setError(err.response?.data?.detail || "Ошибка входа");
     }
@@ -28,10 +31,10 @@ const LoginPage = () => {
       {error && <p className="text-red-500">{error}</p>}
       <form onSubmit={handleSubmit}>
         <input
-          type="text"
-          name="username"
-          placeholder="Логин"
-          value={form.username}
+          type="email" // Изменено на email
+          name="email" // БЫЛО username, теперь email
+          placeholder="Email"
+          value={form.email}
           onChange={handleChange}
           className="w-full p-2 mb-2 border rounded"
           required
