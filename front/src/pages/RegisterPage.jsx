@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { register } from "../api/auth";
-import { useNavigate } from "react-router-dom";
+import { useNavigate , Link} from "react-router-dom";
 
 
 export default function RegisterPage() {
@@ -26,7 +26,7 @@ export default function RegisterPage() {
     <div className="flex min-h-screen flex-1 flex-col justify-center px-6 py-12 lg:px-8 bg-gray-100">
       <div className="sm:mx-auto sm:w-full sm:max-w-md">
        <div className="text-center flex justify-center">
-       <img src="/img/logo.png" alt="" />
+       <Link to="/"><img src="/img/logo.png" alt="" /></Link>
        </div>
         <h2 className="mt-6 text-center text-2xl font-bold tracking-tight text-gray-900">
           Create an account
@@ -92,9 +92,9 @@ export default function RegisterPage() {
 
         <p className="mt-6 text-center text-sm text-gray-500">
           Already have an account?{' '}
-          <a href="/login" className="font-semibold text-indigo-600 hover:text-indigo-500">
+          <Link to="/login" className="font-semibold text-indigo-600 hover:text-indigo-500">
             Sign in
-          </a>
+          </Link>
         </p>
         
       </div>
