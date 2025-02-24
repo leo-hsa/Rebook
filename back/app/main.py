@@ -1,6 +1,6 @@
 from fastapi import FastAPI
 from core.database import init_db, SessionLocal
-from routers import auth, author, book, user
+from routers import auth, author, book, user, genre
 import core.crud as crud
 from fastapi.middleware.cors import CORSMiddleware
 
@@ -10,6 +10,7 @@ app.include_router(author.router , prefix="/authors")
 app.include_router(auth.router)
 app.include_router(book.router, prefix="/books", tags=["book"])
 app.include_router(user.router, prefix="/users", tags=["user"])
+app.include_router(genre.router)
 
 origins = [
     "http://localhost:5173",  

@@ -16,7 +16,7 @@ const Footer = () => {
                         <li><p className="mb-4 pt-4 text-gray-600 font-bold">Links</p></li>
                         <li className="my-2"><Link to="/">Home</Link></li>
                         <li className="my-2"><Link to="/shop">Shop</Link></li>
-                        <li className="my-2"><Link to="/books">Books</Link></li>
+                        
                         <li className="my-2"><Link to="/genres">Genres</Link></li>
                         <li className="my-2"><Link to="/authors">Authors</Link></li>
                     </ul>

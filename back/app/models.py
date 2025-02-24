@@ -8,7 +8,7 @@ class Book(Base):
     id = Column(Integer, primary_key=True, index=True)
     title = Column(String(200), nullable=False)
     description = Column(Text, nullable=False)
-    genre_id = Column(Integer, ForeignKey('genres.id'), nullable=True)  # Делаем nullable=True, чтобы соответствовало Pydantic
+    genre_id = Column(Integer, ForeignKey('genres.id'), nullable=True)  
     author_id = Column(Integer, ForeignKey('authors.id'), nullable=False)
     release_date = Column(Date, nullable=True)
     

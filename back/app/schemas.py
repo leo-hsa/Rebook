@@ -7,9 +7,9 @@ class AuthorBase(BaseModel):
 
 class Author(AuthorBase):
     id: int
-    books: List["Book"] = []  # Используем строковую аннотацию для избежания циклического импорта
+    books: List["Book"] = []  
     class Config:
-        orm_mode = True
+        from_attributes = True
         
 class AuthorCreate(AuthorBase):
     pass
@@ -21,7 +21,7 @@ class Genre(GenreBase):
     id: int
     books: List["Book"] = []
     class Config:
-        orm_mode = True
+        from_attributes = True
         
 class GenreCreate(GenreBase):
     pass
@@ -29,16 +29,16 @@ class GenreCreate(GenreBase):
 class BookBase(BaseModel):
     title: str
     description: str
-    genre_id: Optional[int]  # В БД нельзя null, нужно либо nullable=True, либо убрать Optional
+    genre_id: Optional[int]  
     author_id: int
-    release_date: Optional[date]  # Добавляем, чтобы соответствовало SQLAlchemy
+    release_date: Optional[date]  
 
 class Book(BookBase):
     id: int
-    author: Optional[Author]  # Избегаем циклического импорта
+    author: Optional[Author]  
     genre: Optional[Genre]
     class Config:
-        orm_mode = True
+        from_attributes = True
 
 class BookCreate(BookBase):
     pass
@@ -59,14 +59,14 @@ class UserOut(BaseModel):
     role_id: int
     
     class Config:
-        orm_mode = True
+        from_attributes = True
 
 class RoleOut(BaseModel):
     id: int
     name: str
     
     class Config:
-        orm_mode = True
+        from_attributes = True
 class Token(BaseModel):
     access_token: str
     token_type: str
@@ -87,4 +87,12 @@ class PendingBookOut(PendingBookBase):
     status: str
     
     class Config:
-        orm_mode = True
+        from_attributes = True
+
+
+class GenreOut(BaseModel):
+    id: int
+    name: str
+    class Config:
+        from_attributes = True
+

@@ -8,7 +8,6 @@ const Header = () => {
             <div><ul className="flex justify-center justify-items-center space-x-4">
                 <li><Link to="/">Home</Link></li>
                 <li><Link to="/shop">Shop</Link></li>
-                <li><Link to="/books">Books</Link></li>
                 <li><Link to="/genres">Genres</Link></li>
                 <li><Link to="/authors">Authors</Link></li>
 

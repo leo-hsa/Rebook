@@ -1,5 +1,5 @@
 from sqlalchemy.orm import Session
-from models import PendingBook, PendingBookStatus, Role
+from models import PendingBook, PendingBookStatus, Role, Genre
 import schemas
 
 def create_pending_book(db: Session, book_data:schemas.PendingBookCreate, user_id: int):
@@ -54,4 +54,8 @@ def init_statuses(db: Session):
             db.add(new_role)
             
     db.commit()
+    
+
+def get_all_genres(db: Session):
+    return db.query(Genre).all()
     
