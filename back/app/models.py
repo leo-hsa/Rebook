@@ -5,7 +5,7 @@ from core.database import Base
 class Book(Base):
     __tablename__ = 'books'
     
-    id = Column(Integer, primary_key=True, index=True)
+    id = Column(String(20), primary_key=True)  
     title = Column(String(200), nullable=False)
     description = Column(Text, nullable=False)
     genre_id = Column(Integer, ForeignKey('genres.id'), nullable=True)  

@@ -32,7 +32,30 @@ class BookBase(BaseModel):
     genre_id: Optional[int]  
     author_id: int
     release_date: Optional[date]  
+    
 
+class BookResponse(BaseModel):
+    id: str  # ISBN книги
+    title: str
+    description: str
+    genre_id: Optional[int] = None
+    author_id: int
+    release_date: Optional[str] = None  # Дата в виде строки
+
+    class Config:
+        from_attributes = True  # Позволяет работать с ORM
+
+    @classmethod
+    def from_orm(cls, book):
+        return cls(
+            id=book.id,
+            title=book.title,
+            description=book.description,
+            genre_id=book.genre_id,
+            author_id=book.author_id,
+            release_date=book.release_date.strftime("%Y-%m-%d") if book.release_date else None
+        )
+        
 class Book(BookBase):
     id: int
     author: Optional[Author]  
