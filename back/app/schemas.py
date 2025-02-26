@@ -35,15 +35,17 @@ class BookBase(BaseModel):
     
 
 class BookResponse(BaseModel):
-    id: str  # ISBN книги
+    id: str  
     title: str
     description: str
     genre_id: Optional[int] = None
     author_id: int
-    release_date: Optional[str] = None  # Дата в виде строки
+    release_date: Optional[str] = None  
+    favorites_count: int
+    is_favorite: bool
 
     class Config:
-        from_attributes = True  # Позволяет работать с ORM
+        from_attributes = True 
 
     @classmethod
     def from_orm(cls, book):

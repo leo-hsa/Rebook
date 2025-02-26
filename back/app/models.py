@@ -11,9 +11,11 @@ class Book(Base):
     genre_id = Column(Integer, ForeignKey('genres.id'), nullable=True)  
     author_id = Column(Integer, ForeignKey('authors.id'), nullable=False)
     release_date = Column(Date, nullable=True)
+    favorites_count = Column(Integer, default = 0)
     
     author = relationship("Author", back_populates="books")
     genre = relationship("Genre", back_populates="books")
+    favorites = relationship("Favorite", back_populates="book", cascade="all, delete-orphan")
 
 class Genre(Base):
     __tablename__ = 'genres'
@@ -41,6 +43,7 @@ class User(Base):
     
     role = relationship("Role", back_populates='rolls')
     requests = relationship("PendingBook", back_populates="user")
+    favorites = relationship("Favorite", back_populates="user", cascade="all, delete-orphan")
 
 
 class Role(Base):
@@ -69,3 +72,15 @@ class PendingBook(Base):
     
     user = relationship("User", back_populates="requests")
     status = relationship("PendingBookStatus", back_populates="pending_books")
+    
+    
+    
+class Favorite(Base):
+    __tablename__ = "favorites"
+    
+    id = Column(Integer, primary_key=True, index=True)
+    user_id = Column(Integer,ForeignKey("users.id" , ondelete="CASCADE"), nullable=False)
+    book_id = Column(String(20), ForeignKey("books.id", ondelete="CASCADE"), nullable=False)
+    
+    book = relationship("Book", back_populates="favorites")
+    user = relationship("User", back_populates="favorites")
