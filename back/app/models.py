@@ -11,7 +11,7 @@ class Book(Base):
     genre_id = Column(Integer, ForeignKey('genres.id'), nullable=True)  
     author_id = Column(Integer, ForeignKey('authors.id'), nullable=False)
     release_date = Column(Date, nullable=True)
-    favorites_count = Column(Integer, default = 0)
+    favorites_count = Column(Integer, default = 0, nullable=False)
     
     author = relationship("Author", back_populates="books")
     genre = relationship("Genre", back_populates="books")

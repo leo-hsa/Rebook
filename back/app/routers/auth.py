@@ -5,7 +5,7 @@ from datetime import timedelta
 
 from models import User, Role
 from schemas import UserCreate, UserOut, Token
-from utils.deps import hash_password, verify_password, get_current_user
+from utils.deps import hash_password, verify_password, get_current_user_required
 from utils.jwt import create_access_token
 from core.database import get_db
 
@@ -47,5 +47,5 @@ def login(form_data: OAuth2PasswordRequestForm = Depends(), db: Session = Depend
 
 
 @router.get("/me", response_model=UserOut)
-def get_me(current_user: User = Depends(get_current_user)):
+def get_me(current_user: User = Depends(get_current_user_required)):
     return current_user

@@ -6,7 +6,7 @@ import PrivateRoute from "./components/PrivateRoute";
 import PrivacyPolicies from "./pages/PrivacyPolicies";
 import GenrePage from "./pages/GenrePage";
 import AuthorPage from "./pages/AuthorPage"
-
+import ShopPage from "./pages/ShopPage";
 import ScrollToUp from "./components/ScrollToUp";
 import Header from "./components/Header";
 import Footer from "./components/Footer";
@@ -36,6 +36,7 @@ const App = () => {
           <Route path="/register" element={<RegisterPage />} />
           <Route path="/login" element={<LoginPage />} />
           <Route path="/genres" element={<GenrePage />} />
+          <Route path="/shop" element={<ShopPage />} />
           <Route path="authors" element={<AuthorPage /> } />
           <Route element={<PrivateRoute />}>
             <Route path="/profile" element={<h2>Профиль пользователя</h2>} />

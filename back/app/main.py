@@ -36,4 +36,7 @@ def startup():
     db = SessionLocal()
     crud.init_statuses(db)
     db.close()
+    
+    
+
 
