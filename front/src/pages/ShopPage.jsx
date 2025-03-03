@@ -54,17 +54,21 @@ const ShopPage = () => {
   // Добавление в избранное
   const addToFavorites = async (bookId) => {
     if (!token) {
+      console.log("No token found, redirecting to login");
       navigate("/login");
       return;
     }
+    console.log("Token being sent:", token); // Проверяем токен
     try {
-      await axios.post(`${API_URL}/shop/favorites/${bookId}`, {}, {
+      console.log(`Adding book ${bookId} to favorites with token: ${token}`);
+      const response = await axios.post(`${API_URL}/shop/favorites/${bookId}`, {}, {
         headers: { Authorization: `Bearer ${token}` },
       });
-      fetchBooks(); // Обновляем список
+      console.log("Add to favorites response:", response.data);
+      fetchBooks();
     } catch (err) {
-      console.error("Error adding to favorites:", err);
-      setError("Failed to add to favorites.");
+      console.error("Error adding to favorites:", err.response?.data || err.message);
+      setError(`Failed to add to favorites: ${err.response?.data?.detail || err.message}`);
     }
   };
 

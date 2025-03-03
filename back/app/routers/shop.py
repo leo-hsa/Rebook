@@ -9,7 +9,6 @@ from utils.deps import get_current_user_optional, get_current_user_required
 
 router = APIRouter(prefix="/shop", tags=["Shop"])
 
-# Публичный эндпоинт
 @router.get("/", response_model=list[BookResponse])
 def get_books(
     db: Session = Depends(get_db),
@@ -54,7 +53,6 @@ def get_books(
         for book in books
     ]
 
-# Защищённый эндпоинт
 @router.post("/favorites/{book_id}", response_model=dict)
 def add_to_favorites(
     book_id: int,
@@ -80,7 +78,7 @@ def add_to_favorites(
 
     return {"message": f"Book {book_id} added to favorites"}
 
-# Защищённый эндпоинт
+
 @router.delete("/favorites/{book_id}", response_model=dict)
 def remove_from_favorites(
     book_id: int,
