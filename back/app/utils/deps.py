@@ -17,7 +17,32 @@ def hash_password(password: str) -> str:
 def verify_password(plain_password: str, hashed_password: str) -> bool:
     return pwd_context.verify(plain_password, hashed_password)
 
-# Для публичных эндпоинтов (опциональная авторизация)
+
+def get_current_user_required(token: str = Depends(oauth2_scheme), db: Session = Depends(get_db)) -> User:
+    credentials_exception = HTTPException(
+        status_code=status.HTTP_401_UNAUTHORIZED,
+        detail="Invalid authentication credentials",
+        headers={"WWW-Authenticate": "Bearer"},
+    )
+    
+    if not token:
+        
+        raise credentials_exception
+
+    payload = decode_access_token(token)
+    if not payload:
+        raise credentials_exception
+
+    email = payload.get("sub")
+    
+    user = db.query(User).filter(User.email == email).first()
+    if not user:
+        
+        raise credentials_exception
+
+    return user
+
+
 def get_current_user_optional(token: Optional[str] = Depends(oauth2_scheme), db: Session = Depends(get_db)) -> Optional[User]:
     if not token:
         return None
@@ -29,23 +54,5 @@ def get_current_user_optional(token: Optional[str] = Depends(oauth2_scheme), db:
     user = db.query(User).filter(User.email == payload.get("sub")).first()
     if not user:
         return None
-
-    return user
-
-# Для защищённых эндпоинтов (обязательная авторизация)
-def get_current_user_required(token: str = Depends(oauth2_scheme), db: Session = Depends(get_db)) -> User:
-    credentials_exception = HTTPException(
-        status_code=status.HTTP_401_UNAUTHORIZED,
-        detail="Invalid authentication credentials",
-        headers={"WWW-Authenticate": "Bearer"},
-    )
-    
-    payload = decode_access_token(token)
-    if not payload:
-        raise credentials_exception
-
-    user = db.query(User).filter(User.email == payload.get("sub")).first()
-    if not user:
-        raise credentials_exception
 
     return user

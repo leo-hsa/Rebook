@@ -1,10 +1,10 @@
 from fastapi import APIRouter, Depends, Query, HTTPException
 from sqlalchemy import desc, extract
 from sqlalchemy.orm import Session
+from typing import List, Optional
 from core.database import get_db
 from models import Book, Favorite, User
 from schemas import BookResponse
-from typing import Optional
 from utils.deps import get_current_user_optional, get_current_user_required
 
 router = APIRouter(prefix="/shop", tags=["Shop"])
@@ -75,9 +75,7 @@ def add_to_favorites(
     book.favorites_count += 1
     db.commit()
     db.refresh(favorite)
-
     return {"message": f"Book {book_id} added to favorites"}
-
 
 @router.delete("/favorites/{book_id}", response_model=dict)
 def remove_from_favorites(
@@ -99,5 +97,26 @@ def remove_from_favorites(
     db.delete(favorite)
     book.favorites_count -= 1
     db.commit()
-
     return {"message": f"Book {book_id} removed from favorites"}
+
+@router.get("/favorites/", response_model=List[BookResponse])
+def get_favorites(
+    db: Session = Depends(get_db),
+    user: User = Depends(get_current_user_required)
+):
+    favorites = db.query(Favorite).filter(Favorite.user_id == user.id).all()
+    favorite_book_ids = {fav.book_id for fav in favorites}
+    books = db.query(Book).filter(Book.id.in_(favorite_book_ids)).all()
+    return [
+        BookResponse(
+            id=book.id,
+            title=book.title,
+            description=book.description,
+            genre_id=book.genre_id,
+            author_id=book.author_id,
+            release_date=str(book.release_date),
+            favorites_count=book.favorites_count,
+            is_favorite=True
+        )
+        for book in books
+    ]

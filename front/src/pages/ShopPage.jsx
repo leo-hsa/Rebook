@@ -16,10 +16,10 @@ const ShopPage = () => {
   });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
-  const token = localStorage.getItem("token"); // Получаем токен из localStorage
+  const token = localStorage.getItem("token"); 
   const navigate = useNavigate();
 
-  // Загрузка книг при изменении фильтров
+
   useEffect(() => {
     fetchBooks();
   }, [filters]);
@@ -38,41 +38,40 @@ const ShopPage = () => {
       setBooks(response.data);
       setError("");
     } catch (err) {
-      console.error("Error fetching books:", err);
+      
       setError("Failed to load books. Please try again.");
     } finally {
       setLoading(false);
     }
   };
 
-  // Обработка изменения фильтров
+ 
   const handleFilterChange = (e) => {
     const { name, value } = e.target;
     setFilters((prev) => ({ ...prev, [name]: value }));
   };
 
-  // Добавление в избранное
+
   const addToFavorites = async (bookId) => {
     if (!token) {
-      console.log("No token found, redirecting to login");
+      
       navigate("/login");
       return;
     }
-    console.log("Token being sent:", token); // Проверяем токен
     try {
-      console.log(`Adding book ${bookId} to favorites with token: ${token}`);
+      
       const response = await axios.post(`${API_URL}/shop/favorites/${bookId}`, {}, {
         headers: { Authorization: `Bearer ${token}` },
       });
-      console.log("Add to favorites response:", response.data);
+     
       fetchBooks();
     } catch (err) {
-      console.error("Error adding to favorites:", err.response?.data || err.message);
+      
       setError(`Failed to add to favorites: ${err.response?.data?.detail || err.message}`);
     }
   };
 
-  // Удаление из избранного
+  
   const removeFromFavorites = async (bookId) => {
     if (!token) {
       navigate("/login");
@@ -82,16 +81,16 @@ const ShopPage = () => {
       await axios.delete(`${API_URL}/shop/favorites/${bookId}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
-      fetchBooks(); // Обновляем список
+      fetchBooks(); 
     } catch (err) {
-      console.error("Error removing from favorites:", err);
+      
       setError("Failed to remove from favorites.");
     }
   };
 
   return (
     <div className="flex min-h-screen bg-gray-100">
-      {/* Фильтры слева */}
+      {}
       <div className="w-1/4 p-6 bg-white shadow-md">
         <h2 className="text-xl font-bold mb-4">Filters</h2>
         <div className="space-y-4">
@@ -154,7 +153,7 @@ const ShopPage = () => {
         </div>
       </div>
 
-      {/* Список книг справа */}
+      {}
       <div className="w-3/4 p-6">
         <h1 className="text-2xl font-bold mb-4">Book Shop</h1>
         {error && <p className="text-red-500 mb-4">{error}</p>}
