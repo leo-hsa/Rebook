@@ -24,7 +24,6 @@ const Footer = () => {
                 <div>
                     <ul className="flex flex-col justify-center items-center justify-items-center ">
                         <li><p className="mb-4 pt-4 text-gray-600 font-bold">Help</p></li>
-                        <li className="my-2"><Link to="/about">About</Link></li>
                         <li className="my-2"><Link to="/privacy">Privacy Policies</Link></li>
                         
                     </ul>

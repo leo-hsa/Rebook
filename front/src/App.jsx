@@ -10,6 +10,7 @@ import ShopPage from "./pages/ShopPage";
 import ScrollToUp from "./components/ScrollToUp";
 import Header from "./components/Header";
 import Footer from "./components/Footer";
+import FavoritesPage from "./pages/FavoritesPage";
 
 
 const Layout = ({ children }) => {
@@ -37,9 +38,10 @@ const App = () => {
           <Route path="/login" element={<LoginPage />} />
           <Route path="/genres" element={<GenrePage />} />
           <Route path="/shop" element={<ShopPage />} />
-          <Route path="authors" element={<AuthorPage /> } />
+          <Route path="/authors" element={<AuthorPage /> } />
           <Route element={<PrivateRoute />}>
-            <Route path="/profile" element={<h2>Профиль пользователя</h2>} />
+          <Route path="/favorites" element={<FavoritesPage />} />
+          <Route path="/profile" element={<h2>Профиль пользователя</h2>} />
           </Route>
         </Routes>
       </Layout>

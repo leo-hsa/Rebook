@@ -38,7 +38,8 @@ class BookResponse(BaseModel):
     id: str  
     title: str
     description: str
-    genre_id: Optional[int] = None
+    genre_name: str
+    author_name: str
     author_id: int
     release_date: Optional[str] = None  
     favorites_count: int

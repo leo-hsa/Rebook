@@ -16,7 +16,7 @@ const Header = () => {
             <div>
                 <ul className="flex justify-center justify-items-center space-x-4">
                 <li><Link to="/"><img src="/img/search.png" alt="Search" /></Link></li>
-                <li><Link to="/selected"><img src="/img/heart.png" alt="Selected" /></Link></li>
+                <li><Link to="/favorites"><img src="/img/heart.png" alt="Selected" /></Link></li>
                 <li><Link to="/basket"><img src="/img/shop.png" alt="Basket" /></Link></li>
                 <li><Link to="/profile"><img src="/img/account.png" alt="Profile" /></Link></li>
                 </ul>

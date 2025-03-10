@@ -3,7 +3,7 @@ from sqlalchemy import desc, extract
 from sqlalchemy.orm import Session
 from typing import List, Optional
 from core.database import get_db
-from models import Book, Favorite, User
+from models import Book, Favorite, User, Genre, Author
 from schemas import BookResponse
 from utils.deps import get_current_user_optional, get_current_user_required
 
@@ -19,7 +19,7 @@ def get_books(
     title: Optional[str] = Query(None, description="Search by book title"),
     sort_by: Optional[str] = Query("date", description="Sort by 'date' or 'popularity'")
 ):
-    query = db.query(Book)
+    query = db.query(Book).join(Genre, Book.genre_id == Genre.id).join(Author, Book.author_id == Author.id)
     if genre_id:
         query = query.filter(Book.genre_id == genre_id)
     if author_id:
@@ -44,8 +44,8 @@ def get_books(
             id=book.id,
             title=book.title,
             description=book.description,
-            genre_id=book.genre_id,
-            author_id=book.author_id,
+            genre_name=book.genre.name,
+            author_name=book.author.name,
             release_date=str(book.release_date),
             favorites_count=book.favorites_count,
             is_favorite=book.id in favorite_books
@@ -104,7 +104,14 @@ def get_favorites(
     db: Session = Depends(get_db),
     user: User = Depends(get_current_user_required)
 ):
-    favorites = db.query(Favorite).filter(Favorite.user_id == user.id).all()
+    favorites = (
+        db.query(Book)
+        .join(Favorite, Favorite.book_id == Book.id)
+        .join(Genre, Book.genre_id == Genre.id)
+        .join(Author, Book.author_id == Author.id)
+        .filter(Favorite.user_id == user.id)
+        .all()
+    )
     favorite_book_ids = {fav.book_id for fav in favorites}
     books = db.query(Book).filter(Book.id.in_(favorite_book_ids)).all()
     return [
