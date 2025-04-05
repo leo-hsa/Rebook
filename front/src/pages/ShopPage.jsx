@@ -4,7 +4,6 @@ import axios from "axios";
 import { useNavigate } from "react-router-dom";
 
 const API_URL = "http://localhost:8000";
-const COVER_API_URL = "https://covers.openlibrary.org/b/isbn/";
 
 const ShopPage = () => {
   const [books, setBooks] = useState([]);
@@ -185,19 +184,16 @@ const ShopPage = () => {
                 className="bg-white p-4 rounded-lg shadow-md hover:shadow-lg transition-shadow"
               >
                 <img
-                  src={`${COVER_API_URL}${book.id}-M.jpg`}
+                  src={`...${book.img}`}
                   alt={`${book.title} cover`}
                   className="w-full h-48 object-cover rounded-md mb-4"
                   onError={(e) => (e.target.src = "https://via.placeholder.com/150?text=No+Cover")}
                 />
                 <h3 className="text-lg font-semibold">{book.title}</h3>
-                <p className="text-gray-600">{book.description || "No description"}</p>
-                <p className="text-sm text-gray-500">Genre: {book.genre_name}</p>
-                <p className="text-sm text-gray-500">Author: {book.author_name}</p>
-                <p className="text-sm text-gray-500">
-                  Release Date: {book.release_date || "Unknown"}
-                </p>
-                <p className="text-sm text-gray-500">Favorites: {book.favorites_count}</p>
+                
+                
+                <p className="text-sm text-gray-500">{book.author_name}</p>
+            
                 {token && (
                   <button
                     onClick={() =>

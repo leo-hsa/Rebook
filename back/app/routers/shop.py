@@ -4,12 +4,12 @@ from sqlalchemy.orm import Session
 from typing import List, Optional
 from core.database import get_db
 from models import Book, Favorite, User, Genre, Author
-from schemas import BookResponse
+from schemas import BookResponse, BookShopMainResponse
 from utils.deps import get_current_user_optional, get_current_user_required
 
 router = APIRouter(prefix="/shop", tags=["Shop"])
 
-@router.get("/", response_model=list[BookResponse])
+@router.get("/", response_model=list[BookShopMainResponse])
 def get_books(
     db: Session = Depends(get_db),
     user: Optional[User] = Depends(get_current_user_optional),
@@ -45,15 +45,10 @@ def get_books(
         favorite_books = {fav.book_id for fav in db.query(Favorite).filter(Favorite.user_id == user.id).all()}
 
     return [
-        BookResponse(
-            id=str(book.id),  
+        BookShopMainResponse(
             title=book.title,
-            description=book.description,
-            genre_name=book.genre.name if book.genre else "No genre",
-            author_name=book.author.name,
-            release_date=str(book.release_date) if book.release_date else None,
-            favorites_count=book.favorites_count,
-            is_favorite=book.id in favorite_books
+            img=book.img,
+            author_name=book.author.name
         )
         for book in books
     ]

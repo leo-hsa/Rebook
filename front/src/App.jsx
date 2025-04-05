@@ -11,6 +11,7 @@ import ScrollToUp from "./components/ScrollToUp";
 import Header from "./components/Header";
 import Footer from "./components/Footer";
 import FavoritesPage from "./pages/FavoritesPage";
+import Admin from "./pages/Admin";
 
 
 const Layout = ({ children }) => {
@@ -42,6 +43,7 @@ const App = () => {
           <Route element={<PrivateRoute />}>
           <Route path="/favorites" element={<FavoritesPage />} />
           <Route path="/profile" element={<h2>Профиль пользователя</h2>} />
+          <Route path="/admin" element={<Admin />} />
           </Route>
         </Routes>
       </Layout>

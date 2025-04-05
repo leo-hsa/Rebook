@@ -5,6 +5,7 @@ from datetime import date
 
 class AuthorBase(BaseModel):
     name: str
+    info: Optional[str] = None
 
 class Author(AuthorBase):
     id: int
@@ -37,6 +38,14 @@ class BookBase(BaseModel):
     author_id: int
     release_date: Optional[date]  
     img: Optional[str] = None  
+
+
+class BookShopMainResponse(BaseModel):
+    title: str
+    img: Optional[str] = None
+    author_name: str
+    class Config:
+        from_attributes = True
 
 class BookResponse(BaseModel):
     id: str  
@@ -71,8 +80,14 @@ class Book(BookBase):
     class Config:
         from_attributes = True
 
-class BookCreate(BookBase):
-    pass
+class BookCreate(BaseModel):
+    id: str
+    title: str
+    description: str
+    genre_id: Optional[int] = None
+    author_id: int
+    release_date: Optional[date] = None
+    img: Optional[str] = None 
 
 
 class UserCreate(BaseModel):

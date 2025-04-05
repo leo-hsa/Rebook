@@ -1,10 +1,18 @@
+import os
 from fastapi import FastAPI
+from fastapi.staticfiles import StaticFiles
 from core.database import init_db, SessionLocal
 from routers import auth, author, book, user, genre, shop, admin
 import core.crud as crud
 from fastapi.middleware.cors import CORSMiddleware
 
 app = FastAPI()
+
+book_images_path = os.path.join("back", "static", "images", "books")
+print(book_images_path)
+
+# URL путь
+app.mount("/images/books", StaticFiles(directory=book_images_path), name="book_images")
 
 app.include_router(author.router)
 app.include_router(auth.router)
@@ -16,7 +24,6 @@ app.include_router(admin.router)
 origins = [
     "http://localhost:5173",  
     "http://127.0.0.1:3000",
-    "https://yourfrontend.com", 
 ] 
 
 app.add_middleware(
