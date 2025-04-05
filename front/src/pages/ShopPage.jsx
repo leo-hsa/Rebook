@@ -4,25 +4,41 @@ import axios from "axios";
 import { useNavigate } from "react-router-dom";
 
 const API_URL = "http://localhost:8000";
+const COVER_API_URL = "https://covers.openlibrary.org/b/isbn/";
 
 const ShopPage = () => {
   const [books, setBooks] = useState([]);
   const [filters, setFilters] = useState({
-    genre_id: "",
-    author_id: "",
+    genre_name: "",
+    author_name: "",
     year: "",
     title: "",
     sort_by: "date",
   });
+  const [genres, setGenres] = useState([]);
+  const [authors, setAuthors] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
-  const token = localStorage.getItem("token"); 
+  const token = localStorage.getItem("token");
   const navigate = useNavigate();
-
 
   useEffect(() => {
     fetchBooks();
   }, [filters]);
+
+  useEffect(() => {
+    const fetchGenresAndAuthors = async () => {
+      try {
+        const genreResponse = await axios.get(`${API_URL}/shop/genres/`);
+        const authorResponse = await axios.get(`${API_URL}/shop/authors/`);
+        setGenres(genreResponse.data);
+        setAuthors(authorResponse.data);
+      } catch (err) {
+        setError("Failed to load genres or authors.");
+      }
+    };
+    fetchGenresAndAuthors();
+  }, []);
 
   const fetchBooks = async () => {
     setLoading(true);
@@ -38,40 +54,38 @@ const ShopPage = () => {
       setBooks(response.data);
       setError("");
     } catch (err) {
-      
       setError("Failed to load books. Please try again.");
     } finally {
       setLoading(false);
     }
   };
 
- 
   const handleFilterChange = (e) => {
     const { name, value } = e.target;
     setFilters((prev) => ({ ...prev, [name]: value }));
   };
 
-
   const addToFavorites = async (bookId) => {
     if (!token) {
-      
       navigate("/login");
       return;
     }
     try {
-      
-      const response = await axios.post(`${API_URL}/shop/favorites/${bookId}`, {}, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-     
+      await axios.post(
+        `${API_URL}/shop/favorites/${bookId}`,
+        {},
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
       fetchBooks();
     } catch (err) {
-      
-      setError(`Failed to add to favorites: ${err.response?.data?.detail || err.message}`);
+      setError(
+        `Failed to add to favorites: ${err.response?.data?.detail || err.message}`
+      );
     }
   };
 
-  
   const removeFromFavorites = async (bookId) => {
     if (!token) {
       navigate("/login");
@@ -81,39 +95,43 @@ const ShopPage = () => {
       await axios.delete(`${API_URL}/shop/favorites/${bookId}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
-      fetchBooks(); 
+      fetchBooks();
     } catch (err) {
-      
       setError("Failed to remove from favorites.");
     }
   };
 
   return (
     <div className="flex min-h-screen bg-gray-100">
-      {}
+      {/* Фильтры */}
       <div className="w-1/4 p-6 bg-white shadow-md">
         <h2 className="text-xl font-bold mb-4">Filters</h2>
         <div className="space-y-4">
           <div>
-            <label className="block text-sm font-medium text-gray-700">Genre ID</label>
-            <input
-              type="number"
-              name="genre_id"
-              value={filters.genre_id}
+            <label className="block text-sm font-medium text-gray-700">Genre</label>
+            <select
+              name="genre_name"
+              value={filters.genre_name}
               onChange={handleFilterChange}
               className="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-2 focus:ring-indigo-500 focus:border-indigo-500"
-              placeholder="Enter genre ID"
-            />
+            >
+              <option value="">All Genres</option>
+              {genres.map((genre) => (
+                <option key={genre.id} value={genre.name}>
+                  {genre.name}
+                </option>
+              ))}
+            </select>
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700">Author ID</label>
+            <label className="block text-sm font-medium text-gray-700">Author</label>
             <input
-              type="number"
-              name="author_id"
-              value={filters.author_id}
+              type="text"
+              name="author_name"
+              value={filters.author_name}
               onChange={handleFilterChange}
               className="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-2 focus:ring-indigo-500 focus:border-indigo-500"
-              placeholder="Enter author ID"
+              placeholder="Search by author name"
             />
           </div>
           <div>
@@ -153,7 +171,7 @@ const ShopPage = () => {
         </div>
       </div>
 
-      {}
+      {/* Список книг */}
       <div className="w-3/4 p-6">
         <h1 className="text-2xl font-bold mb-4">Book Shop</h1>
         {error && <p className="text-red-500 mb-4">{error}</p>}
@@ -166,11 +184,19 @@ const ShopPage = () => {
                 key={book.id}
                 className="bg-white p-4 rounded-lg shadow-md hover:shadow-lg transition-shadow"
               >
+                <img
+                  src={`${COVER_API_URL}${book.id}-M.jpg`}
+                  alt={`${book.title} cover`}
+                  className="w-full h-48 object-cover rounded-md mb-4"
+                  onError={(e) => (e.target.src = "https://via.placeholder.com/150?text=No+Cover")}
+                />
                 <h3 className="text-lg font-semibold">{book.title}</h3>
                 <p className="text-gray-600">{book.description || "No description"}</p>
-                <p className="text-sm text-gray-500">Genre ID: {book.genre_id}</p>
-                <p className="text-sm text-gray-500">Author ID: {book.author_id}</p>
-                <p className="text-sm text-gray-500">Release Date: {book.release_date}</p>
+                <p className="text-sm text-gray-500">Genre: {book.genre_name}</p>
+                <p className="text-sm text-gray-500">Author: {book.author_name}</p>
+                <p className="text-sm text-gray-500">
+                  Release Date: {book.release_date || "Unknown"}
+                </p>
                 <p className="text-sm text-gray-500">Favorites: {book.favorites_count}</p>
                 {token && (
                   <button

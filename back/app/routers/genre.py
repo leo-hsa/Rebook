@@ -9,5 +9,6 @@ from typing import List
 router = APIRouter(prefix="/genres", tags=["Genre"])
 
 @router.get("/",response_model=List[GenreOut])
-def read_genres(db: Session = Depends(get_db)):
-    return get_all_genres(db)
+def get_genres(db: Session = Depends(get_db)):
+    genres = db.query(Genre).all()
+    return genres

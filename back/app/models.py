@@ -12,6 +12,7 @@ class Book(Base):
     author_id = Column(Integer, ForeignKey('authors.id'), nullable=False)
     release_date = Column(Date, nullable=True)
     favorites_count = Column(Integer, default = 0, nullable=False)
+    img = Column(String(255), nullable=True)
     
     author = relationship("Author", back_populates="books")
     genre = relationship("Genre", back_populates="books")
@@ -22,6 +23,8 @@ class Genre(Base):
     
     id = Column(Integer, primary_key=True, index=True)
     name = Column(String(255), nullable=False, unique=True)
+    img = Column(String(255), nullable=True)
+
     books = relationship("Book", back_populates="genre")
 
 class Author(Base):

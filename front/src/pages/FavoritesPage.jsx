@@ -4,6 +4,7 @@ import axios from "axios";
 import { useNavigate } from "react-router-dom";
 
 const API_URL = "http://localhost:8000";
+const COVER_API_URL = "https://covers.openlibrary.org/b/isbn/";
 
 const FavoritesPage = () => {
   const [favorites, setFavorites] = useState([]);
@@ -41,7 +42,7 @@ const FavoritesPage = () => {
       await axios.delete(`${API_URL}/shop/favorites/${bookId}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
-      fetchFavorites(); 
+      fetchFavorites();
     } catch (err) {
       console.error("Error removing from favorites:", err.response?.data || err.message);
       setError(`Failed to remove book ${bookId} from favorites: ${err.response?.data?.detail || err.message}`);
@@ -68,10 +69,19 @@ const FavoritesPage = () => {
               key={book.id}
               className="bg-white p-4 rounded-lg shadow-md hover:shadow-lg transition-shadow"
             >
+              <img
+                src={`${COVER_API_URL}${book.id}-M.jpg`}
+                alt={`${book.title} cover`}
+                className="w-full h-48 object-cover rounded-md mb-4"
+                onError={(e) => (e.target.src = "https://via.placeholder.com/150?text=No+Cover")}
+              />
               <h3 className="text-lg font-semibold">{book.title}</h3>
-              <p className="text-sm text-gray-500">Genre ID: {book.genre_id}</p>
-              <p className="text-sm text-gray-500">Author ID: {book.author_id}</p>
-              <p className="text-sm text-gray-500">Release Date: {book.release_date}</p>
+              <p className="text-gray-600">{book.description || "No description"}</p>
+              <p className="text-sm text-gray-500">Genre: {book.genre_name}</p>
+              <p className="text-sm text-gray-500">Author: {book.author_name}</p>
+              <p className="text-sm text-gray-500">
+                Release Date: {book.release_date || "Unknown"}
+              </p>
               <p className="text-sm text-gray-500">Favorites: {book.favorites_count}</p>
               <button
                 onClick={() => removeFromFavorites(book.id)}
