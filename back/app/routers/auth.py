@@ -11,6 +11,7 @@ from core.database import get_db
 
 router = APIRouter(prefix="/auth", tags=["Authentication"])
 
+
 @router.post("/register", response_model=UserOut)
 def register(user_data: UserCreate, db: Session = Depends(get_db)):
     if db.query(User).filter(User.email == user_data.email).first():

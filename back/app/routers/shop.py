@@ -21,14 +21,10 @@ def get_books(
 ):
     query = db.query(Book).join(Genre, Book.genre_id == Genre.id).join(Author, Book.author_id == Author.id)
 
-  
     if genre_name:
         query = query.filter(Genre.name.ilike(f"%{genre_name}%"))
-
-
     if author_name:
         query = query.filter(Author.name.ilike(f"%{author_name}%"))
-
     if year:
         query = query.filter(extract('year', Book.release_date) == year)
     if title:
@@ -44,15 +40,15 @@ def get_books(
     if user:
         favorite_books = {fav.book_id for fav in db.query(Favorite).filter(Favorite.user_id == user.id).all()}
 
+    # Construct full static image path
     return [
         BookShopMainResponse(
             title=book.title,
-            img=book.img,
+            img=f"/static/images/books/{book.img}",  
             author_name=book.author.name
         )
         for book in books
     ]
-
 
 
 @router.get("/favorites/", response_model=List[BookResponse])

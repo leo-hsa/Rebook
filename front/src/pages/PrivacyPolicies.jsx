@@ -1,10 +1,9 @@
 import React from 'react';
-import Header from '../components/Header';
 import Footer from '../components/Footer'
 const PrivacyPolicies = () => {
   return (
     <div className="">
-        <Header />
+       
         <div className='container mx-auto  px-4'>
         <h1 className="text-3xl font-bold mb-4">Privacy Policy</h1>
 
@@ -244,7 +243,7 @@ const PrivacyPolicies = () => {
       
 
      
-      <Footer />
+      
     </div>
   );
 };

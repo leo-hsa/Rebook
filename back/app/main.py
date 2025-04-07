@@ -7,12 +7,7 @@ import core.crud as crud
 from fastapi.middleware.cors import CORSMiddleware
 
 app = FastAPI()
-
-book_images_path = os.path.join("back", "static", "images", "books")
-print(book_images_path)
-
-# URL путь
-app.mount("/images/books", StaticFiles(directory=book_images_path), name="book_images")
+app.mount("/static", StaticFiles(directory="back/static"), name="static")
 
 app.include_router(author.router)
 app.include_router(auth.router)

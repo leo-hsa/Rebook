@@ -6,6 +6,10 @@ from schemas import BookResponse, Genre as GenreSchema, Author as AuthorSchema
 from core.database import get_db
 import os
 from pathlib import Path
+import logging
+
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 router = APIRouter(prefix="/admin", tags=["Admin"])
 
@@ -20,14 +24,12 @@ def create_book(
     img: UploadFile = File(None),
     db: Session = Depends(get_db)
 ):
-    
     db_author = db.query(Author).filter(Author.name == author_name).first()  
     if not db_author:
         db_author = Author(name=author_name) 
         db.add(db_author)
         db.commit()
         db.refresh(db_author)
-    
     
     genre_id = None
     if genre_name:
@@ -39,20 +41,23 @@ def create_book(
             db.refresh(db_genre)
         genre_id = db_genre.id
     
-    
     if db.query(Book).filter(Book.id == id).first():  
         raise HTTPException(status_code=400, detail="Book with this ID already exists")
     
-    
     img_path = None
     if img:
-        images_dir = "images"
+        images_dir = Path(__file__).parent.parent / "static/images/books"
         os.makedirs(images_dir, exist_ok=True)
         img_filename = f"{id}_{img.filename}"
-        img_path = f"/images/{img_filename}"
-        with open(os.path.join(images_dir, img_filename), "wb") as f:
+        img_full_path = images_dir / img_filename
+        logger.info(f"Saving image to: {img_full_path}")
+        with open(img_full_path, "wb") as f:
             f.write(img.file.read())
-    
+        if img_full_path.exists():
+            logger.info(f"File saved successfully: {img_full_path}")
+        else:
+            logger.error(f"File not saved: {img_full_path}")
+        img_path = img_filename  
     
     db_book = Book(
         id=id,
@@ -77,21 +82,24 @@ def create_genre(
     img: UploadFile = File(None),
     db: Session = Depends(get_db)
 ):
-    
     if db.query(Genre).filter(Genre.name == name).first(): 
         raise HTTPException(status_code=400, detail="Genre with this name already exists")
     
-    
     img_path = None
     if img:
-        images_dir = "images"
+        images_dir = Path(__file__).parent.parent / "static/images/genres"  
         os.makedirs(images_dir, exist_ok=True)
         img_filename = f"genre_{name}_{img.filename}"
-        img_path = f"/images/{img_filename}"
-        with open(os.path.join(images_dir, img_filename), "wb") as f:
+        img_full_path = images_dir / img_filename
+        logger.info(f"Saving image to: {img_full_path}")  
+        with open(img_full_path, "wb") as f:
             f.write(img.file.read())
+        if img_full_path.exists():  
+            logger.info(f"File saved successfully: {img_full_path}")
+        else:
+            logger.error(f"File not saved: {img_full_path}")
+        img_path = img_filename 
     
- 
     db_genre = Genre(name=name, img=img_path) 
     db.add(db_genre)
     db.commit()
