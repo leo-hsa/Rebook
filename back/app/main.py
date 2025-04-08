@@ -7,7 +7,7 @@ import core.crud as crud
 from fastapi.middleware.cors import CORSMiddleware
 
 app = FastAPI()
-app.mount("/static", StaticFiles(directory="back/static"), name="static")
+app.mount("/static", StaticFiles(directory="static"), name="static")
 
 app.include_router(author.router)
 app.include_router(auth.router)

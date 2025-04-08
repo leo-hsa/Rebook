@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, ForeignKey, Text, Date
+from sqlalchemy import Column, Integer, String, ForeignKey, Text, Date, Numeric
 from sqlalchemy.orm import relationship
 from core.database import Base
 
@@ -13,10 +13,12 @@ class Book(Base):
     release_date = Column(Date, nullable=True)
     favorites_count = Column(Integer, default = 0, nullable=False)
     img = Column(String(255), nullable=True)
+    price = Column(Numeric(10, 2), nullable=False)
     
     author = relationship("Author", back_populates="books")
     genre = relationship("Genre", back_populates="books")
     favorites = relationship("Favorite", back_populates="book", cascade="all, delete-orphan")
+    baskets = relationship("Basket", back_populates="book", cascade="all, delete-orphan")
 
 class Genre(Base):
     __tablename__ = 'genres'
@@ -47,6 +49,7 @@ class User(Base):
     role = relationship("Role", back_populates='rolls')
     requests = relationship("PendingBook", back_populates="user")
     favorites = relationship("Favorite", back_populates="user", cascade="all, delete-orphan")
+    baskets = relationship("Basket", back_populates="user", cascade="all, delete-orphan")
 
 
 class Role(Base):
@@ -55,28 +58,7 @@ class Role(Base):
     name = Column(String(50), unique=True, nullable=False)
     
     rolls = relationship("User", back_populates="role")
-    
-class PendingBookStatus(Base):
-    __tablename__ = "pending_book_statuses"
-    
-    id = Column(Integer, primary_key=True, index=True)
-    name = Column(String(50), unique=True, nullable=False)
-    pending_books = relationship("PendingBook", back_populates="status")
-    
-    
-class PendingBook(Base):
-    __tablename__ = "pending_books"
-    
-    id = Column(Integer, primary_key=True, index=True)
-    title = Column(String(200), nullable=False)
-    author_name = Column(String(255), nullable=False)
-    requested_by = Column(Integer, ForeignKey("users.id"), nullable=False)
-    status_id = Column(Integer, ForeignKey("pending_book_statuses.id"), nullable=False)
-    
-    user = relationship("User", back_populates="requests")
-    status = relationship("PendingBookStatus", back_populates="pending_books")
-    
-    
+
     
 class Favorite(Base):
     __tablename__ = "favorites"
@@ -87,3 +69,15 @@ class Favorite(Base):
     
     book = relationship("Book", back_populates="favorites")
     user = relationship("User", back_populates="favorites")
+
+
+class Basket(Base):
+    __tablename__ = "baskets"
+
+    id = Column(Integer, primary_key=True, index=True)
+    user_id = Column(Integer, ForeignKey("users.id", ondelete="CASCADE"), nullable=False)
+    book_id = Column(String(20), ForeignKey("books.id", ondelete="CASCADE", nullable=False))
+    quantity = Column(Integer, default = 1, nullable=False)
+
+    book = relationship("Book", back_populates="baskets")
+    user = relationship("User", back_populates="baskets")

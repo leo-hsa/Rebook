@@ -40,7 +40,7 @@ def get_books(
     if user:
         favorite_books = {fav.book_id for fav in db.query(Favorite).filter(Favorite.user_id == user.id).all()}
 
-    # Construct full static image path
+    
     return [
         BookShopMainResponse(
             title=book.title,
@@ -50,7 +50,34 @@ def get_books(
         for book in books
     ]
 
+@router.get("/book/{book_id}", response_model=BookResponse)
+def get_book_info(
+    db: Session = Depends(get_db),
+    book_id: str = None, 
+):
+    book = db.query(Book).filter(Book.id == book_id).first()
+    if not book:
+        raise HTTPException(status_code=404, detail="Book not found")
+    
+    in_favorite = False
+    
+    return BookResponse(
+        id=str(book.id),
+            title=book.title,
+            description=book.description,
+            genre_name=book.genre.name if book.genre else "No genre",
+            author_name=book.author.name,
+            release_date=str(book.release_date) if book.release_date else None,
+            favorites_count=book.favorites_count,
+            is_favorite=True,
+            img=f"/static/images/books/{book.img}",
+    )
+    
 
+    
+
+
+    
 @router.get("/favorites/", response_model=List[BookResponse])
 def get_favorites(
     db: Session = Depends(get_db),
@@ -120,3 +147,6 @@ def remove_from_favorites(
     book.favorites_count -= 1
     db.commit()
     return {"message": f"Book {book_id} removed from favorites"}
+
+
+
