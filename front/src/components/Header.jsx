@@ -7,10 +7,10 @@ const Header = () => {
         <nav className="flex justify-between items-center bg-white shadow p-4  items-center sticky top-0  z-50 ">
             <div><Link to="/"><img src="/img/logo.png" alt="" /></Link></div>
             <div><ul className="flex justify-center justify-items-center space-x-4">
-                <li><Link to="/">Home</Link></li>
-                <li><Link to="/shop">Shop</Link></li>
+                <li><Link to="/">Shop</Link></li>
                 <li><Link to="/genres">Genres</Link></li>
                 <li><Link to="/authors">Authors</Link></li>
+                <li><Link to="/info">About us</Link></li>
 
             </ul></div>
 

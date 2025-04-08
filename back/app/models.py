@@ -47,7 +47,6 @@ class User(Base):
     role_id = Column(Integer, ForeignKey('roles.id'), nullable=False, default=2)
     
     role = relationship("Role", back_populates='rolls')
-    requests = relationship("PendingBook", back_populates="user")
     favorites = relationship("Favorite", back_populates="user", cascade="all, delete-orphan")
     baskets = relationship("Basket", back_populates="user", cascade="all, delete-orphan")
 
@@ -76,7 +75,7 @@ class Basket(Base):
 
     id = Column(Integer, primary_key=True, index=True)
     user_id = Column(Integer, ForeignKey("users.id", ondelete="CASCADE"), nullable=False)
-    book_id = Column(String(20), ForeignKey("books.id", ondelete="CASCADE", nullable=False))
+    book_id = Column(String(20), ForeignKey("books.id", ondelete="CASCADE"), nullable=False)
     quantity = Column(Integer, default = 1, nullable=False)
 
     book = relationship("Book", back_populates="baskets")
