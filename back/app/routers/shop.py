@@ -3,8 +3,8 @@ from sqlalchemy import desc, extract
 from sqlalchemy.orm import Session
 from typing import List, Optional
 from core.database import get_db
-from models import Book, Favorite, User, Genre, Author
-from schemas import BookResponse, BookShopMainResponse
+from models import Book, Favorite, User, Genre, Author ,Basket
+from schemas import BookResponse, BookShopMainResponse, BasketCreate
 from utils.deps import get_current_user_optional, get_current_user_required
 
 router = APIRouter(prefix="/shop", tags=["Shop"])
@@ -147,6 +147,32 @@ def remove_from_favorites(
     book.favorites_count -= 1
     db.commit()
     return {"message": f"Book {book_id} removed from favorites"}
+
+
+@router.post("/basket/{book_id}", response_model=dict)
+def add_to_basket(
+    book_id: str,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user_required)
+):
+    book = db.query(Book).filter(Book.id == book_id).first()
+    if not book:
+        raise HTTPException(status_code=404, detail="Book is not")
+    
+    basket_item = db.query(Basket).filter_by(user_id=current_user.id, book_id=book_id).first()
+
+    if basket_item:
+        raise HTTPException(status_code=404, detail="Book already exists")
+    else:
+        basket_item = Basket(
+            user_id=current_user.id,
+            book_id=book_id
+        )
+        db.add(basket_item)
+        db.commit()
+        db.refresh(basket_item)
+
+    return {"message": f"Book {book_id} added to basket"}
 
 
 

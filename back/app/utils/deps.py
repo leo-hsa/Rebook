@@ -56,3 +56,12 @@ def get_current_user_optional(token: Optional[str] = Depends(oauth2_scheme), db:
         return None
 
     return user
+
+
+def get_current_admin(user: User = Depends(get_current_user_required)):
+    if user.role != 1:
+        raise HTTPException(
+            status_code=403,
+            detail="Not enough permission - admin access required"
+        )
+    return user

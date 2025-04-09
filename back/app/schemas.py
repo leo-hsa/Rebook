@@ -88,6 +88,8 @@ class BookCreate(BaseModel):
     author_id: int
     release_date: Optional[date] = None
     img: Optional[str] = None 
+    favorites_count: Optional[int] = 0
+    
 
 
 class UserCreate(BaseModel):
@@ -119,29 +121,17 @@ class Token(BaseModel):
     access_token: str
     token_type: str
 
-
-class PendingBookBase(BaseModel):
-    title: str
-    author_name: str
-    
-class PendingBookCreate(PendingBookBase):
-    pass
-
-class PendingBookUpdate(BaseModel):
-    status_id: int
-
-class PendingBookOut(PendingBookBase):
-    id: int
-    requsted_by: int
-    status: str
-    
-    class Config:
-        from_attributes = True
-
-
 class GenreOut(BaseModel):
     id: int
     name: str
     img: Optional[str] = None  
+    class Config:
+        from_attributes = True
+
+
+class BasketCreate(BaseModel):
+    book_id: str
+    quantity: Optional[int] = 1
+
     class Config:
         from_attributes = True
