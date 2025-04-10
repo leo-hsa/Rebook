@@ -1,6 +1,13 @@
-from sqlalchemy import Column, Integer, String, ForeignKey, Text, Date, Numeric
+from sqlalchemy import Column, Integer, String, ForeignKey, Text, Date, Numeric, Enum
 from sqlalchemy.orm import relationship
 from core.database import Base
+import enum
+
+class BasketStatus(enum.Enum):
+    ACTIVE = "active"
+    REMOVED = "removed"
+    PURCHASED = "purchased"
+
 
 class Book(Base):
     __tablename__ = 'books'
@@ -77,6 +84,7 @@ class Basket(Base):
     user_id = Column(Integer, ForeignKey("users.id", ondelete="CASCADE"), nullable=False)
     book_id = Column(String(20), ForeignKey("books.id", ondelete="CASCADE"), nullable=False)
     quantity = Column(Integer, default = 1, nullable=False)
+    status = Column(Enum(BasketStatus), default=BasketStatus.ACTIVE, nullable=False)
 
     book = relationship("Book", back_populates="baskets")
     user = relationship("User", back_populates="baskets")

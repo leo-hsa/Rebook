@@ -12,6 +12,7 @@ import Header from "./components/Header";
 import Footer from "./components/Footer";
 import FavoritesPage from "./pages/FavoritesPage";
 import Admin from "./pages/Admin";
+import ProfilePage from "./pages/ProfilePage";
 
 
 const Layout = ({ children }) => {
@@ -42,7 +43,7 @@ const App = () => {
           <Route path="/authors" element={<AuthorPage /> } />
           <Route element={<PrivateRoute />}>
           <Route path="/favorites" element={<FavoritesPage />} />
-          <Route path="/profile" element={<h2>Профиль пользователя</h2>} />
+          <Route path="/profile" element={<ProfilePage />} />
           <Route path="/admin" element={<Admin />} />
           </Route>
         </Routes>

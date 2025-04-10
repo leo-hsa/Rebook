@@ -57,6 +57,8 @@ class BookResponse(BaseModel):
     favorites_count: int
     is_favorite: bool
     img: Optional[str] = None  
+    price: float
+    quantity: Optional[int] = None
 
     class Config:
         from_attributes = True
