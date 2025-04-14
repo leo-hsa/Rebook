@@ -32,7 +32,7 @@ export const getProfile = async () => {
     return response.data;
   } catch (err) {
     console.error("Profile fetch error:", err);
-    return null; // Возвращаем null в случае ошибки
+    return null; 
   }
 };
 

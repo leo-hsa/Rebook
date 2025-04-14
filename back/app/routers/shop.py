@@ -3,7 +3,7 @@ from sqlalchemy import desc, extract
 from sqlalchemy.orm import Session
 from typing import List, Optional
 from core.database import get_db
-from models import Book, Favorite, User, Genre, Author, Basket
+from models import Book, Favorite, User, Genre, Author, Basket, BasketStatus
 from schemas import BookResponse, BookShopMainResponse, BasketCreate
 from utils.deps import get_current_user_optional, get_current_user_required
 
@@ -18,7 +18,7 @@ def get_books(
     year: Optional[int] = Query(None, description="Filter by release year"),
     title: Optional[str] = Query(None, description="Search by book title"),
     sort_by: Optional[str] = Query("date", description="Sort by 'date' or 'popularity'"),
-    limit: int = Query(10, ge=1, le=100, description="Limit of records"),  # Pagination added
+    limit: int = Query(10, ge=1, le=100, description="Limit of records"),  
     offset: int = Query(0, ge=0, description="Offset for pagination")
 ):
     query = db.query(Book).join(Genre, Book.genre_id == Genre.id).join(Author, Book.author_id == Author.id)
@@ -37,7 +37,7 @@ def get_books(
     else:
         query = query.order_by(desc(Book.release_date))
 
-    query = query.limit(limit).offset(offset)  # Pagination
+    query = query.limit(limit).offset(offset)  
     books = query.all()
     favorite_books = set()
     if user:
@@ -76,7 +76,7 @@ def get_book_info(
         favorites_count=book.favorites_count,
         is_favorite=is_favorite,
         img=f"/static/images/books/{book.img}" if book.img else "/static/images/books/default.jpg",
-        price=float(book.price)  # Price added
+        price=float(book.price)
     )
 
 @router.get("/favorites/", response_model=List[BookResponse])
@@ -153,7 +153,7 @@ def remove_from_favorites(
 @router.post("/basket/{book_id}", response_model=dict)
 def add_to_basket(
     book_id: str,
-    basket_data: BasketCreate = Depends(),  # Using schema via Depends
+    basket_data: BasketCreate = Depends(), 
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user_required)
 ):
@@ -164,8 +164,8 @@ def add_to_basket(
     basket_item = db.query(Basket).filter_by(user_id=current_user.id, book_id=book_id).first()
 
     if basket_item:
-        if basket_item.status == "removed":
-            basket_item.status = "active"
+        if basket_item.status == BasketStatus.removed:
+            basket_item.status = BasketStatus.active
             basket_item.quantity = basket_data.quantity
             try:
                 db.commit()
@@ -178,7 +178,7 @@ def add_to_basket(
         basket_item = Basket(
             user_id=current_user.id,
             book_id=book_id,
-            status="active",
+            status=BasketStatus.active,
             quantity=basket_data.quantity
         )
         db.add(basket_item)
@@ -198,13 +198,13 @@ def remove_from_basket(
     current_user: User = Depends(get_current_user_required)
 ):
     basket_item = db.query(Basket).filter_by(user_id=current_user.id, book_id=book_id).first()
-    if not basket_item or basket_item.status == "removed":
+    if not basket_item or basket_item.status == BasketStatus.removed:
         raise HTTPException(status_code=404, detail="Book not found in basket")
 
     if hard_delete:
         db.delete(basket_item)
     else:
-        basket_item.status = "removed"
+        basket_item.status = BasketStatus.removed
     try:
         db.commit()
     except Exception:
@@ -219,7 +219,7 @@ def get_basket(
 ):
     basket_items = db.query(Basket).join(Book, Basket.book_id == Book.id).filter(
         Basket.user_id == current_user.id,
-        Basket.status == "active"
+        Basket.status == BasketStatus.active
     ).all()
 
     return [
@@ -234,12 +234,10 @@ def get_basket(
             is_favorite=db.query(Favorite).filter(Favorite.user_id == current_user.id, Favorite.book_id == item.book.id).first() is not None,
             img=f"/static/images/books/{item.book.img}" if item.book.img else "/static/images/books/default.jpg",
             price=float(item.book.price),
-            quantity=item.quantity  # Quantity added
+            quantity=item.quantity  
         )
         for item in basket_items
     ]
-
-
 
 @router.post("/basket/purchase", response_model=dict)
 def purchase_basket(
@@ -248,14 +246,14 @@ def purchase_basket(
 ):
     basket_items = db.query(Basket).filter(
         Basket.user_id == current_user.id,
-        Basket.status == "active"
+        Basket.status == BasketStatus.active
     ).all()
 
     if not basket_items:
         raise HTTPException(status_code=400, detail="Basket is empty")
 
     for item in basket_items:
-        item.status = "purchased"
+        item.status = BasketStatus.purchased
     
     try:
         db.commit()

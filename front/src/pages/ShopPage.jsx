@@ -1,8 +1,9 @@
-// src/components/ShopPage.jsx
 import React, { useState, useEffect, useCallback } from "react";
 import axios from "axios";
-import { useNavigate } from "react-router-dom";
-import PropTypes from "prop-types"; // Optional: for type checking
+import { useNavigate, useLocation } from "react-router-dom";
+import PropTypes from "prop-types";
+import { toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 const API_URL = "http://localhost:8000";
 
@@ -10,6 +11,28 @@ const FilterPanel = ({ filters, genres, onFilterChange }) => (
   <div className="w-1/4 p-6 bg-white shadow-md">
     <h2 className="text-xl font-bold mb-4">Filters</h2>
     <div className="space-y-4">
+    <div>
+        <label className="block text-sm font-medium text-gray-700">Title</label>
+        <input
+          type="text"
+          name="title"
+          value={filters.title}
+          onChange={onFilterChange}
+          className="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-2 focus:ring-indigo-500 focus:border-indigo-500"
+          placeholder="Search by title"
+        />
+      </div>
+      <div>
+        <label className="block text-sm font-medium text-gray-700">Author</label>
+        <input
+          type="text"
+          name="author_name"
+          value={filters.author_name}
+          onChange={onFilterChange}
+          className="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-2 focus:ring-indigo-500 focus:border-indigo-500"
+          placeholder="Search by author name"
+        />
+      </div>
       <div>
         <label className="block text-sm font-medium text-gray-700">Genre</label>
         <select
@@ -26,17 +49,7 @@ const FilterPanel = ({ filters, genres, onFilterChange }) => (
           ))}
         </select>
       </div>
-      <div>
-        <label className="block text-sm font-medium text-gray-700">Author</label>
-        <input
-          type="text"
-          name="author_name"
-          value={filters.author_name}
-          onChange={onFilterChange}
-          className="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-2 focus:ring-indigo-500 focus:border-indigo-500"
-          placeholder="Search by author name"
-        />
-      </div>
+     
       <div>
         <label className="block text-sm font-medium text-gray-700">Year</label>
         <input
@@ -48,17 +61,7 @@ const FilterPanel = ({ filters, genres, onFilterChange }) => (
           placeholder="Enter year"
         />
       </div>
-      <div>
-        <label className="block text-sm font-medium text-gray-700">Title</label>
-        <input
-          type="text"
-          name="title"
-          value={filters.title}
-          onChange={onFilterChange}
-          className="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-2 focus:ring-indigo-500 focus:border-indigo-500"
-          placeholder="Search by title"
-        />
-      </div>
+      
       <div>
         <label className="block text-sm font-medium text-gray-700">Sort By</label>
         <select
@@ -72,7 +75,9 @@ const FilterPanel = ({ filters, genres, onFilterChange }) => (
         </select>
       </div>
     </div>
-  </div>
+  </div
+>
+
 );
 
 const BookCard = ({ book, token, onAddToFavorites, onRemoveFromFavorites }) => (
@@ -113,9 +118,21 @@ const ShopPage = () => {
   const [genres, setGenres] = useState([]);
   const [authors, setAuthors] = useState([]);
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
   const token = localStorage.getItem("token");
   const navigate = useNavigate();
+  const location = useLocation();
+
+  
+  useEffect(() => {
+    const query = new URLSearchParams(location.search).get("search");
+    if (query) {
+      setFilters((prev) => ({
+        ...prev,
+        title: query,
+        author_name: query, 
+      }));
+    }
+  }, [location.search]);
 
   const fetchBooks = useCallback(async () => {
     setLoading(true);
@@ -127,9 +144,10 @@ const ShopPage = () => {
         headers: token ? { Authorization: `Bearer ${token}` } : {},
       });
       setBooks(response.data);
-      setError("");
     } catch (err) {
-      setError("Failed to load books. Please try again.");
+      toast.error("Failed to load books. Please try again.", {
+        position: "bottom-right",
+      });
       console.error("Fetch books error:", err);
     } finally {
       setLoading(false);
@@ -145,7 +163,9 @@ const ShopPage = () => {
       setGenres(genreResponse.data);
       setAuthors(authorResponse.data);
     } catch (err) {
-      setError("Failed to load genres or authors.");
+      toast.error("Failed to load genres or authors.", {
+        position: "bottom-right",
+      });
       console.error("Fetch genres/authors error:", err);
     }
   }, []);
@@ -169,12 +189,20 @@ const ShopPage = () => {
       return;
     }
     try {
-      await axios.post(`${API_URL}/shop/favorites/${bookId}`, {}, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      await axios.post(
+        `${API_URL}/shop/favorites/${bookId}`,
+        {},
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
       fetchBooks();
+      toast.success("Added to favorites!", { position: "bottom-right" });
     } catch (err) {
-      setError(`Failed to add to favorites: ${err.response?.data?.detail || err.message}`);
+      toast.error(
+        `Failed to add to favorites: ${err.response?.data?.detail || err.message}`,
+        { position: "bottom-right" }
+      );
       console.error("Add to favorites error:", err);
     }
   };
@@ -189,18 +217,24 @@ const ShopPage = () => {
         headers: { Authorization: `Bearer ${token}` },
       });
       fetchBooks();
+      toast.success("Removed from favorites!", { position: "bottom-right" });
     } catch (err) {
-      setError(`Failed to remove from favorites: ${err.response?.data?.detail || err.message}`);
+      toast.error(
+        `Failed to remove from favorites: ${err.response?.data?.detail || err.message}`,
+        { position: "bottom-right" }
+      );
       console.error("Remove from favorites error:", err);
     }
   };
 
   return (
     <div className="flex min-h-screen bg-gray-100">
-      <FilterPanel filters={filters} genres={genres} onFilterChange={handleFilterChange} />
+      <FilterPanel
+        filters={filters}
+        genres={genres}
+        onFilterChange={handleFilterChange}
+      />
       <div className="w-3/4 p-6">
-        <h1 className="text-2xl font-bold mb-4">Book Shop</h1>
-        {error && <p className="text-red-500 mb-4">{error}</p>}
         {loading ? (
           <p className="text-gray-600">Loading...</p>
         ) : books.length === 0 ? (
@@ -223,7 +257,6 @@ const ShopPage = () => {
   );
 };
 
-// Optional: PropTypes for type checking
 FilterPanel.propTypes = {
   filters: PropTypes.shape({
     genre_name: PropTypes.string,

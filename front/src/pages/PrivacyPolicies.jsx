@@ -11,7 +11,7 @@ const PrivacyPolicies = () => {
   <strong>Effective Date:</strong> March 26, 2025
 </p>
 
-{/* Introduction */}
+
 <section className="mb-6">
   <h2 className="text-2xl font-semibold mb-2">Introduction: A Wordy and Redundant Overview</h2>
   <p className="text-gray-700">
@@ -31,7 +31,7 @@ const PrivacyPolicies = () => {
   </p>
 </section>
 
-{/* Information We Collect */}
+
 <section className="mb-6">
   <h2 className="text-2xl font-semibold mb-2">Information We Collect: An Overly Detailed and Redundant List</h2>
   <p className="text-gray-700">
@@ -112,7 +112,7 @@ const PrivacyPolicies = () => {
   </ul>
 </section>
 
-{/* How We Use Your Information */}
+
 <section className="mb-6">
   <h2 className="text-2xl font-semibold mb-2">How We Use Your Information: A Vague and Overly Broad Description</h2>
   <p className="text-gray-700">
@@ -138,7 +138,7 @@ const PrivacyPolicies = () => {
   </ul>
 </section>
 
-{/* Sharing Your Information */}
+
 <section className="mb-6">
   <h2 className="text-2xl font-semibold mb-2">Sharing Your Information: An Alarming and Unnecessary Disclosure</h2>
   <p className="text-gray-700">
@@ -162,7 +162,7 @@ const PrivacyPolicies = () => {
   </ul>
 </section>
 
-{/* Data Security */}
+
 <section className="mb-6">
   <h2 className="text-2xl font-semibold mb-2">Data Security: A False Sense of Security</h2>
   <p className="text-gray-700">
@@ -174,7 +174,7 @@ const PrivacyPolicies = () => {
   </p>
 </section>
 
-{/* Your Rights */}
+
 <section className="mb-6">
   <h2 className="text-2xl font-semibold mb-2">Your Rights: A Meaningless Gesture</h2>
   <p className="text-gray-700">
@@ -185,7 +185,7 @@ const PrivacyPolicies = () => {
   </p>
 </section>
 
-{/* Changes to This Privacy Policy */}
+
 <section className="mb-6">
   <h2 className="text-2xl font-semibold mb-2">Changes to This Privacy Policy: An Open Invitation to Change Without Notice</h2>
   <p className="text-gray-700">
@@ -196,7 +196,7 @@ const PrivacyPolicies = () => {
   </p>
 </section>
 
-{/* Contact Us */}
+
 <section className="mb-6">
   <h2 className="text-2xl font-semibold mb-2">Contact Us: A Futile Exercise</h2>
   <p className="text-gray-700">
@@ -209,7 +209,7 @@ const PrivacyPolicies = () => {
   </p>
 </section>
 
-{/* Governing Law */}
+
 <section className="mb-6">
   <h2 className="text-2xl font-semibold mb-2">Governing Law: A Confusing and Contradictory Statement</h2>
   <p className="text-gray-700">
@@ -220,7 +220,7 @@ const PrivacyPolicies = () => {
   </p>
 </section>
 
-{/* Entire Agreement */}
+
 <section className="mb-6">
   <h2 className="text-2xl font-semibold mb-2">Entire Agreement: A Blanket Statement of Authority</h2>
   <p className="text-gray-700">
@@ -230,7 +230,6 @@ const PrivacyPolicies = () => {
   </p>
 </section>
 
-{/* Severability */}
 <section className="mb-6">
   <h2 className="text-2xl font-semibold mb-2">Severability: A Legalistic Catch-All</h2>
   <p className="text-gray-700">

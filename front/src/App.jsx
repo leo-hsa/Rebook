@@ -13,6 +13,7 @@ import Footer from "./components/Footer";
 import FavoritesPage from "./pages/FavoritesPage";
 import Admin from "./pages/Admin";
 import ProfilePage from "./pages/ProfilePage";
+import BasketPage from "./pages/BasketPage"
 
 
 const Layout = ({ children }) => {
@@ -41,10 +42,10 @@ const App = () => {
           <Route path="/genres" element={<GenrePage />} />
           <Route path="/" element={<ShopPage />} />
           <Route path="/authors" element={<AuthorPage /> } />
-          <Route element={<PrivateRoute />}>
           <Route path="/favorites" element={<FavoritesPage />} />
           <Route path="/profile" element={<ProfilePage />} />
           <Route path="/admin" element={<Admin />} />
+          <Route path="/basket" element={<BasketPage />}>
           </Route>
         </Routes>
       </Layout>

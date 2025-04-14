@@ -122,6 +122,10 @@ class RoleOut(BaseModel):
 class Token(BaseModel):
     access_token: str
     token_type: str
+    nickname: str
+
+    class Config:
+        from_attributes = True
 
 class GenreOut(BaseModel):
     id: int
