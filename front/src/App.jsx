@@ -2,11 +2,11 @@ import { BrowserRouter as Router, Routes, Route, useLocation } from "react-route
 import RegisterPage from "./pages/RegisterPage";
 import LoginPage from "./pages/LoginPage";
 import Home from "./pages/InfoPage";
-import PrivateRoute from "./components/PrivateRoute";
 import PrivacyPolicies from "./pages/PrivacyPolicies";
 import GenrePage from "./pages/GenrePage";
-import AuthorPage from "./pages/AuthorPage"
+import AuthorPage from "./pages/AuthorPage";
 import ShopPage from "./pages/ShopPage";
+import BookPage from "./pages/BookPage"; // Added import for BookPage
 import ScrollToUp from "./components/ScrollToUp";
 import Header from "./components/Header";
 import Footer from "./components/Footer";
@@ -14,7 +14,6 @@ import FavoritesPage from "./pages/FavoritesPage";
 import Admin from "./pages/Admin";
 import ProfilePage from "./pages/ProfilePage";
 import BasketPage from "./pages/BasketPage"
-
 
 const Layout = ({ children }) => {
   const location = useLocation();
@@ -41,12 +40,14 @@ const App = () => {
           <Route path="/login" element={<LoginPage />} />
           <Route path="/genres" element={<GenrePage />} />
           <Route path="/" element={<ShopPage />} />
-          <Route path="/authors" element={<AuthorPage /> } />
+          <Route path="/authors" element={<AuthorPage />} />
           <Route path="/favorites" element={<FavoritesPage />} />
           <Route path="/profile" element={<ProfilePage />} />
           <Route path="/admin" element={<Admin />} />
-          <Route path="/basket" element={<BasketPage />}>
-          </Route>
+          <Route path="/book/:book_id" element={<BookPage />} />
+          <Route path="/basket" element={<BasketPage />} />
+          
+        
         </Routes>
       </Layout>
     </Router>

@@ -23,7 +23,7 @@ def create_book(
     author_name: str = Form(...),
     genre_name: Optional[str] = Form(None),
     release_date: Optional[str] = Form(None),
-    price: float = Form(..., ge=0),  # Добавлено поле цены
+    price: float = Form(..., ge=0),  
     img: UploadFile = File(None),
     db: Session = Depends(get_db),
     current_user=Depends(get_current_admin)

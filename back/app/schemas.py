@@ -41,11 +41,16 @@ class BookBase(BaseModel):
 
 
 class BookShopMainResponse(BaseModel):
+    id: str  
     title: str
     img: Optional[str] = None
     author_name: str
-    class Config:
-        from_attributes = True
+    is_favorite: bool 
+
+
+    model_config = {
+        "from_attributes": True
+    }
 
 class BookResponse(BaseModel):
     id: str  

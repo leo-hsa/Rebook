@@ -11,3 +11,11 @@ router = APIRouter(prefix="/authors", tags=["Author"])
 def get_authors(db: Session = Depends(get_db)):
     authors = db.query(Author).all()
     return authors
+
+
+@router.get("/{author_id}", response_model=AuthorBase)
+def get_author_details(author_id: int, db: Session = Depends(get_db)):
+    author = db.query(Author).filter(Author.id == author_id).first()
+    if not author:
+        raise HTTPException(status_code=404, detail="Author not found")
+    return author

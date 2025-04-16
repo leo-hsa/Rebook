@@ -110,46 +110,18 @@ const HomePage = () => {
       {/* Hero Section */}
       <div className="bg-indigo-600 text-white py-12 px-6">
         <div className="max-w-7xl mx-auto">
-          <h1 className="text-4xl font-bold mb-4">Welcome to Our Book Store</h1>
+          <h1 className="text-4xl font-bold mb-4">Welcome to Rebook</h1>
           <p className="text-lg">Discover your next favorite read today!</p>
         </div>
       </div>
 
-      {/* Main Content */}
-      <div className="max-w-7xl mx-auto p-6">
-        {error && <p className="text-red-500 mb-4">{error}</p>}
-        {loading ? (
-          <p className="text-gray-600">Loading...</p>
-        ) : (
-          <>
-            {/* Featured Books */}
-            <section className="mb-12">
-              <h2 className="text-2xl font-bold mb-6">Featured Books</h2>
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {featuredBooks.map((book) => (
-                  <FeaturedBookCard
-                    key={book.id}
-                    book={book}
-                    token={token}
-                    onAddToFavorites={addToFavorites}
-                  />
-                ))}
-              </div>
-            </section>
 
-            {/* New Releases */}
-            <CategorySection title="New Releases" books={newReleases} />
-
-            {/* Popular Books */}
-            <CategorySection title="Popular Books" books={popularBooks} />
-          </>
-        )}
-      </div>
+     
     </div>
   );
 };
 
-// PropTypes
+
 FeaturedBookCard.propTypes = {
   book: PropTypes.shape({
     id: PropTypes.string.isRequired,
