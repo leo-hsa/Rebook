@@ -11,13 +11,13 @@ import { HeartIcon as HeartIconSolid } from '@heroicons/react/24/solid';
 import { HeartIcon as HeartIconOutline } from '@heroicons/react/24/outline';
 import { ShoppingCartIcon, InboxIcon } from '@heroicons/react/24/outline';
 
-// URL вашего API и путь к статике
+
 const API_URL = "http://localhost:8000";
 const BOOK_IMG_PREFIX = "/static/images/books/";
 const GENRE_IMG_PREFIX = "/static/images/genres/";
 const RELIABLE_PLACEHOLDER = "https://placehold.co/144x192/EFEFEF/AAAAAA?text=No+Cover";
 
-// --- Компонент FilterPanel (без изменений) ---
+
 const FilterPanel = ({ filters, genres, onFilterChange, isOpen, onClose }) => (
     <aside id="filter-panel" className={`fixed top-0 left-0 h-full w-3/4 max-w-xs bg-white shadow-xl z-50 p-6 overflow-y-auto transform transition-transform duration-300 ease-in-out ${isOpen ? 'translate-x-0' : '-translate-x-full'} md:sticky md:top-[calc(4rem+1px)] md:h-[calc(100vh-4rem-1px)] md:translate-x-0 md:w-1/4 lg:w-1/5 xl:w-1/6 md:max-w-none md:shadow-md md:z-30 md:block md:overflow-y-auto`}>
         {isOpen && ( <div className="fixed inset-0 bg-black bg-opacity-50 z-40 md:hidden" onClick={onClose} aria-hidden="true"></div> )}
@@ -39,15 +39,15 @@ const FilterPanel = ({ filters, genres, onFilterChange, isOpen, onClose }) => (
     </aside>
 );
 
-// --- Компонент BookCard (без изменений) ---
+
 const BookCard = ({ book, token, onAddToFavorites, onRemoveFromFavorites, onAddToCart }) => { /* ... */
     const placeholderUrl = RELIABLE_PLACEHOLDER; let imgSrc = placeholderUrl; if (book.img) { if (book.img.startsWith('http')) { imgSrc = book.img; } else if (book.img.startsWith('/')) { imgSrc = `${API_URL}${book.img}`; } else { imgSrc = `${API_URL}${BOOK_IMG_PREFIX}${book.img}`; } }
     return ( <Link to={`/book/${book.id}`} className="block group h-full" aria-label={`View details for ${book.title}`}> <div className="relative bg-white p-4 rounded-lg shadow-md hover:shadow-lg transition-shadow w-full flex flex-col text-center h-full"> {token && ( <button onClick={(e) => { e.preventDefault(); e.stopPropagation(); book.is_favorite ? onRemoveFromFavorites(book.id) : onAddToFavorites(book.id); }} className="absolute top-2 right-2 p-1 rounded-full text-gray-500 hover:text-red-500 hover:bg-red-100 focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-indigo-500 z-10 transition-colors" aria-label={book.is_favorite ? `Remove ${book.title} from favs` : `Add ${book.title} to favs`} title={book.is_favorite ? 'Remove from Favs' : 'Add to Favs'}>{book.is_favorite ? (<HeartIconSolid className="h-5 w-5 text-red-500" />) : (<HeartIconOutline className="h-5 w-5" />)}</button> )} <div className="w-36 h-48 mx-auto mb-4 flex items-center justify-center flex-shrink-0"> <img src={imgSrc} alt={`${book.title} cover`} className="max-w-full max-h-full object-contain rounded-md" onError={(e) => { console.error(`[BookCard] Failed img load: ${imgSrc}`); e.target.src = placeholderUrl; e.target.alt = `${book.title} (cover unavailable)` }} loading="lazy" /></div> <div className="flex-grow flex flex-col justify-between w-full"> <div className="mb-3"><h3 className="text-base font-semibold text-gray-800 line-clamp-2 group-hover:text-indigo-600" title={book.title}>{book.title || "No Title"}</h3><p className="text-sm text-gray-500 line-clamp-1 mt-1" title={book.author_name}>{book.author_name || "Unknown Author"}</p></div> {token && ( <button onClick={(e) => { e.preventDefault(); e.stopPropagation(); onAddToCart(book.id); }} aria-label={`Add ${book.title} to cart`} className="mt-auto w-full max-w-[160px] mx-auto px-3 py-1.5 rounded bg-indigo-600 text-white font-medium text-xs hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 flex items-center justify-center space-x-1.5 transition-colors"><ShoppingCartIcon className="h-4 w-4" /><span>Add to Cart</span></button> )} </div> </div> </Link> );
 };
 
-// --- Компонент ShopPage ---
+
 const ShopPage = () => {
-    // Состояния
+  
     const [books, setBooks] = useState([]);
     const [filters, setFilters] = useState({ genre_name: "", author_name: "", year: "", title: "", sort_by: "date" });
     const [genres, setGenres] = useState([]);
@@ -55,31 +55,30 @@ const ShopPage = () => {
     const [isFilterPanelOpen, setIsFilterPanelOpen] = useState(false);
     const [initialLoadComplete, setInitialLoadComplete] = useState(false);
 
-    // Хуки
+
     const token = localStorage.getItem("token");
     const navigate = useNavigate();
     const location = useLocation();
 
-    // Эффект синхронизации URL -> Filters State
+
     useEffect(() => {
         console.log("[ShopPage] useEffect[location.search] triggered. Current filters before update:", filters);
         const queryParams = new URLSearchParams(location.search);
         let filtersChanged = false;
-        // Создаем копию не из стейта, а из дефолтных значений + URL,
-        // чтобы избежать влияния предыдущего стейта при быстрой навигации
+       
         const defaultFilters = { genre_name: "", author_name: "", year: "", title: "", sort_by: "date" };
         const newFilters = { ...defaultFilters };
 
-        const filterKeys = ['genre_name', 'author_name', 'year', 'sort_by']; // Title/Search обрабатываем отдельно
+        const filterKeys = ['genre_name', 'author_name', 'year', 'sort_by']; 
 
-        // Обработка title/search
+        
         const searchParam = queryParams.get('search');
         const titleParam = queryParams.get('title');
-        const titleValue = searchParam ?? titleParam; // Приоритет у 'search'
+        const titleValue = searchParam ?? titleParam; 
 
         if (titleValue !== null) {
             newFilters.title = titleValue;
-             // Если пришел 'search', очищаем другие фильтры в newFilters
+             
              if (searchParam !== null) {
                  console.log("[ShopPage] Resetting other filters in newFilters due to 'search' param.");
                  newFilters.genre_name = "";
@@ -186,8 +185,8 @@ const ShopPage = () => {
     );
 };
 
-// --- PropTypes (без изменений) ---
-FilterPanel.propTypes = { /* ... */ filters: PropTypes.shape({ genre_name: PropTypes.string, author_name: PropTypes.string, year: PropTypes.string, title: PropTypes.string, sort_by: PropTypes.string, }).isRequired, genres: PropTypes.arrayOf( PropTypes.shape({ id: PropTypes.oneOfType([PropTypes.string, PropTypes.number]).isRequired, name: PropTypes.string.isRequired, }) ).isRequired, onFilterChange: PropTypes.func.isRequired, isOpen: PropTypes.bool.isRequired, onClose: PropTypes.func.isRequired, };
-BookCard.propTypes = { /* ... */ book: PropTypes.shape({ id: PropTypes.oneOfType([PropTypes.string, PropTypes.number]).isRequired, title: PropTypes.string.isRequired, img: PropTypes.string, author_name: PropTypes.string.isRequired, is_favorite: PropTypes.bool, }).isRequired, token: PropTypes.string, onAddToFavorites: PropTypes.func.isRequired, onRemoveFromFavorites: PropTypes.func.isRequired, onAddToCart: PropTypes.func.isRequired, };
+
+FilterPanel.propTypes = {  filters: PropTypes.shape({ genre_name: PropTypes.string, author_name: PropTypes.string, year: PropTypes.string, title: PropTypes.string, sort_by: PropTypes.string, }).isRequired, genres: PropTypes.arrayOf( PropTypes.shape({ id: PropTypes.oneOfType([PropTypes.string, PropTypes.number]).isRequired, name: PropTypes.string.isRequired, }) ).isRequired, onFilterChange: PropTypes.func.isRequired, isOpen: PropTypes.bool.isRequired, onClose: PropTypes.func.isRequired, };
+BookCard.propTypes = { book: PropTypes.shape({ id: PropTypes.oneOfType([PropTypes.string, PropTypes.number]).isRequired, title: PropTypes.string.isRequired, img: PropTypes.string, author_name: PropTypes.string.isRequired, is_favorite: PropTypes.bool, }).isRequired, token: PropTypes.string, onAddToFavorites: PropTypes.func.isRequired, onRemoveFromFavorites: PropTypes.func.isRequired, onAddToCart: PropTypes.func.isRequired, };
 
 export default ShopPage;
