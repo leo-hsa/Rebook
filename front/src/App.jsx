@@ -14,6 +14,7 @@ import FavoritesPage from "./pages/FavoritesPage";
 import Admin from "./pages/Admin";
 import ProfilePage from "./pages/ProfilePage";
 import BasketPage from "./pages/BasketPage"
+import AuthorInfoPage from './pages/AuthorInfoPage';
 
 const Layout = ({ children }) => {
   const location = useLocation();
@@ -46,6 +47,7 @@ const App = () => {
           <Route path="/admin" element={<Admin />} />
           <Route path="/book/:book_id" element={<BookPage />} />
           <Route path="/basket" element={<BasketPage />} />
+          <Route path="/author/:authorId" element={<AuthorInfoPage />} />
           
         
         </Routes>

@@ -3,16 +3,34 @@ from typing import List, Optional
 from datetime import date
 
 
+class BookSummaryForAuthor(BaseModel):
+    id: str 
+    title: str
+    img: Optional[str] = None
+
+    model_config = { "from_attributes": True }
+
 class AuthorBase(BaseModel):
     name: str
     info: Optional[str] = None
 
-class Author(AuthorBase):
-    id: int
-    books: List["Book"] = []  
-    class Config:
-        from_attributes = True
-        
+
+class AuthorListItem(BaseModel):
+    id: int 
+    name: str
+
+    model_config = { "from_attributes": True }
+ 
+
+
+class Author(AuthorBase): 
+    id: int 
+    books: List[BookSummaryForAuthor] = [] 
+
+    model_config = { "from_attributes": True }
+   
+
+
 class AuthorCreate(AuthorBase):
     pass
 

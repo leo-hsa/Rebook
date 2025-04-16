@@ -1,3 +1,5 @@
+// src/pages/ShopPage.jsx
+
 import React, { useState, useEffect, useCallback } from "react";
 import axios from "axios";
 import { useNavigate, useLocation, Link } from "react-router-dom";
@@ -7,248 +9,185 @@ import "react-toastify/dist/ReactToastify.css";
 import { XMarkIcon, FunnelIcon } from '@heroicons/react/24/outline';
 import { HeartIcon as HeartIconSolid } from '@heroicons/react/24/solid';
 import { HeartIcon as HeartIconOutline } from '@heroicons/react/24/outline';
-import { ShoppingCartIcon } from '@heroicons/react/24/outline';
+import { ShoppingCartIcon, InboxIcon } from '@heroicons/react/24/outline';
 
-// URL вашего API
+// URL вашего API и путь к статике
 const API_URL = "http://localhost:8000";
+const BOOK_IMG_PREFIX = "/static/images/books/";
+const GENRE_IMG_PREFIX = "/static/images/genres/";
+const RELIABLE_PLACEHOLDER = "https://placehold.co/144x192/EFEFEF/AAAAAA?text=No+Cover";
 
-// --- Компонент FilterPanel (код без изменений, как в предыдущем ответе) ---
+// --- Компонент FilterPanel (без изменений) ---
 const FilterPanel = ({ filters, genres, onFilterChange, isOpen, onClose }) => (
-    <>
-        {/* Оверлей для мобильных */}
+    <aside id="filter-panel" className={`fixed top-0 left-0 h-full w-3/4 max-w-xs bg-white shadow-xl z-50 p-6 overflow-y-auto transform transition-transform duration-300 ease-in-out ${isOpen ? 'translate-x-0' : '-translate-x-full'} md:sticky md:top-[calc(4rem+1px)] md:h-[calc(100vh-4rem-1px)] md:translate-x-0 md:w-1/4 lg:w-1/5 xl:w-1/6 md:max-w-none md:shadow-md md:z-30 md:block md:overflow-y-auto`}>
         {isOpen && ( <div className="fixed inset-0 bg-black bg-opacity-50 z-40 md:hidden" onClick={onClose} aria-hidden="true"></div> )}
-        {/* Панель фильтров */}
-        <div className={`fixed top-0 left-0 h-full w-3/4 max-w-xs bg-white shadow-xl z-50 p-6 overflow-y-auto transform transition-transform duration-300 ease-in-out ${isOpen ? 'translate-x-0' : '-translate-x-full'} md:relative md:translate-x-0 md:w-1/4 md:max-w-none md:h-auto md:shadow-md md:z-auto md:block md:overflow-y-visible`}>
-             {/* Кнопка закрытия */}
-            <button type="button" className="absolute top-4 right-4 text-gray-500 hover:text-gray-700 md:hidden" onClick={onClose} aria-label="Close filters">
-                <span className="sr-only">Close filters</span><XMarkIcon className="h-6 w-6" aria-hidden="true" />
-            </button>
-            <h2 className="text-xl font-bold mb-4">Filters</h2>
-            <div className="space-y-4">
-                 {/* Поля ввода */}
-                 <div><label htmlFor="title-filter" className="block text-sm font-medium text-gray-700">Title</label><input id="title-filter" type="text" name="title" value={filters.title} onChange={onFilterChange} className="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-2 focus:ring-indigo-500 focus:border-indigo-500" placeholder="Search by title" /></div>
-                 <div><label htmlFor="author-filter" className="block text-sm font-medium text-gray-700">Author</label><input id="author-filter" type="text" name="author_name" value={filters.author_name} onChange={onFilterChange} className="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-2 focus:ring-indigo-500 focus:border-indigo-500" placeholder="Search by author name" /></div>
-                 <div><label htmlFor="genre-filter" className="block text-sm font-medium text-gray-700">Genre</label><select id="genre-filter" name="genre_name" value={filters.genre_name} onChange={onFilterChange} className="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-2 focus:ring-indigo-500 focus:border-indigo-500"><option value="">All Genres</option>{Array.isArray(genres) && genres.map((genre) => (<option key={genre.id || genre.name} value={genre.name}>{genre.name}</option>))}</select></div>
-                 <div><label htmlFor="year-filter" className="block text-sm font-medium text-gray-700">Year</label><input id="year-filter" type="number" name="year" value={filters.year} onChange={onFilterChange} className="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-2 focus:ring-indigo-500 focus:border-indigo-500" placeholder="Enter year" min="1000" max={new Date().getFullYear()} /></div>
-                 <div><label htmlFor="sort-filter" className="block text-sm font-medium text-gray-700">Sort By</label><select id="sort-filter" name="sort_by" value={filters.sort_by} onChange={onFilterChange} className="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-2 focus:ring-indigo-500 focus:border-indigo-500"><option value="date">Date</option><option value="popularity">Popularity</option></select></div>
-            </div>
-        </div>
-    </>
+        <button type="button" className="absolute top-4 right-4 text-gray-500 hover:text-gray-700 md:hidden" onClick={onClose} aria-label="Close filters"> <span className="sr-only">Close filters</span><XMarkIcon className="h-6 w-6" aria-hidden="true" /> </button>
+        <h2 className="text-xl font-semibold text-gray-800 mb-5">Filters</h2>
+        <form className="space-y-5">
+             <div><label htmlFor="title-filter" className="block text-sm font-medium text-gray-700 mb-1">Title</label><input id="title-filter" type="text" name="title" value={filters.title} onChange={onFilterChange} className="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-2 text-sm focus:ring-indigo-500 focus:border-indigo-500" placeholder="Search by title" /></div>
+             <div><label htmlFor="author-filter" className="block text-sm font-medium text-gray-700 mb-1">Author</label><input id="author-filter" type="text" name="author_name" value={filters.author_name} onChange={onFilterChange} className="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-2 text-sm focus:ring-indigo-500 focus:border-indigo-500" placeholder="Search by author name" /></div>
+             <div>
+                 <label htmlFor="genre-filter" className="block text-sm font-medium text-gray-700 mb-1">Genre</label>
+                 <select id="genre-filter" name="genre_name" value={filters.genre_name} onChange={onFilterChange} className="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-2 text-sm focus:ring-indigo-500 focus:border-indigo-500 bg-white">
+                     <option value="">All Genres</option>
+                     {Array.isArray(genres) && genres.length > 0 ? ( genres.map((genre) => ( genre && typeof genre.id !== 'undefined' && genre.name ? ( <option key={genre.id} value={genre.name}> {genre.name} </option> ) : null )) ) : ( <option disabled>Loading genres...</option> )}
+                 </select>
+             </div>
+             <div><label htmlFor="year-filter" className="block text-sm font-medium text-gray-700 mb-1">Year</label><input id="year-filter" type="number" name="year" value={filters.year} onChange={onFilterChange} className="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-2 text-sm focus:ring-indigo-500 focus:border-indigo-500 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none" placeholder="Enter year" min="1000" max={new Date().getFullYear()} /></div>
+             <div><label htmlFor="sort-filter" className="block text-sm font-medium text-gray-700 mb-1">Sort By</label><select id="sort-filter" name="sort_by" value={filters.sort_by} onChange={onFilterChange} className="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-2 text-sm focus:ring-indigo-500 focus:border-indigo-500 bg-white"><option value="date">Date</option><option value="popularity">Popularity</option></select></div>
+        </form>
+    </aside>
 );
 
-// --- Компонент BookCard (код без изменений, как в предыдущем ответе) ---
-const BookCard = ({ book, token, onAddToFavorites, onRemoveFromFavorites, onAddToCart }) => {
-    // ДОБАВИМ ЛОГ ПРЯМО ЗДЕСЬ
-    // console.log("Rendering BookCard for:", book?.title, "Props:", { book, token });
-    return (
-        <Link to={`/book/${book.id}`} className="block group h-full" aria-label={`View details for ${book.title}`}>
-            <div className="relative bg-white p-4 rounded-lg shadow-md hover:shadow-lg transition-shadow w-full flex flex-col items-center text-center h-full">
-                {/* Иконка сердца */}
-                {token && ( <button onClick={(e) => { e.preventDefault(); e.stopPropagation(); book.is_favorite ? onRemoveFromFavorites(book.id) : onAddToFavorites(book.id); }} className="absolute top-2 right-2 p-1 rounded-full text-gray-600 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-indigo-500 z-10" aria-label={book.is_favorite ? `Remove ${book.title} from favorites` : `Add ${book.title} to favorites`} title={book.is_favorite ? 'Remove from Favorites' : 'Add to Favorites'}>{book.is_favorite ? (<HeartIconSolid className="h-6 w-6 text-red-500" aria-hidden="true" />) : (<HeartIconOutline className="h-6 w-6 text-gray-500 group-hover:text-red-400" aria-hidden="true" />)}</button> )}
-                 {/* Изображение книги */}
-                <div className="w-36 h-48 flex items-center justify-center mb-4 mt-4"> <img src={book.img ? (book.img.startsWith('http') ? book.img : `${API_URL}${book.img}`) : "https://via.placeholder.com/144x192?text=No+Cover"} alt={`${book.title} cover`} className="max-w-full max-h-full object-contain rounded-md flex-shrink-0" onError={(e) => { console.error(`Failed to load image for ${book.title}: ${book.img}`); e.target.src = "https://via.placeholder.com/144x192?text=No+Cover"; }} loading="lazy" /></div>
-                {/* Текст и кнопка */}
-                <div className="flex-grow flex flex-col justify-between w-full mt-2">
-                    <div className="mb-3"><h3 className="text-lg font-semibold line-clamp-2 hover:text-indigo-600 transition-colors duration-200" title={book.title}>{book.title}</h3><p className="text-sm text-gray-500 line-clamp-1 mt-1" title={book.author_name}>{book.author_name}</p></div>
-                    {token && ( <button onClick={(e) => { e.preventDefault(); e.stopPropagation(); onAddToCart(book.id); }} aria-label={`Add ${book.title} to cart`} className="mt-auto w-full max-w-[180px] mx-auto p-2 rounded bg-indigo-600 text-white font-medium text-sm transition-colors duration-200 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 flex items-center justify-center space-x-2"><ShoppingCartIcon className="h-4 w-4" aria-hidden="true" /><span>В корзину</span></button> )}
-                </div>
-            </div>
-        </Link>
-    );
+// --- Компонент BookCard (без изменений) ---
+const BookCard = ({ book, token, onAddToFavorites, onRemoveFromFavorites, onAddToCart }) => { /* ... */
+    const placeholderUrl = RELIABLE_PLACEHOLDER; let imgSrc = placeholderUrl; if (book.img) { if (book.img.startsWith('http')) { imgSrc = book.img; } else if (book.img.startsWith('/')) { imgSrc = `${API_URL}${book.img}`; } else { imgSrc = `${API_URL}${BOOK_IMG_PREFIX}${book.img}`; } }
+    return ( <Link to={`/book/${book.id}`} className="block group h-full" aria-label={`View details for ${book.title}`}> <div className="relative bg-white p-4 rounded-lg shadow-md hover:shadow-lg transition-shadow w-full flex flex-col text-center h-full"> {token && ( <button onClick={(e) => { e.preventDefault(); e.stopPropagation(); book.is_favorite ? onRemoveFromFavorites(book.id) : onAddToFavorites(book.id); }} className="absolute top-2 right-2 p-1 rounded-full text-gray-500 hover:text-red-500 hover:bg-red-100 focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-indigo-500 z-10 transition-colors" aria-label={book.is_favorite ? `Remove ${book.title} from favs` : `Add ${book.title} to favs`} title={book.is_favorite ? 'Remove from Favs' : 'Add to Favs'}>{book.is_favorite ? (<HeartIconSolid className="h-5 w-5 text-red-500" />) : (<HeartIconOutline className="h-5 w-5" />)}</button> )} <div className="w-36 h-48 mx-auto mb-4 flex items-center justify-center flex-shrink-0"> <img src={imgSrc} alt={`${book.title} cover`} className="max-w-full max-h-full object-contain rounded-md" onError={(e) => { console.error(`[BookCard] Failed img load: ${imgSrc}`); e.target.src = placeholderUrl; e.target.alt = `${book.title} (cover unavailable)` }} loading="lazy" /></div> <div className="flex-grow flex flex-col justify-between w-full"> <div className="mb-3"><h3 className="text-base font-semibold text-gray-800 line-clamp-2 group-hover:text-indigo-600" title={book.title}>{book.title || "No Title"}</h3><p className="text-sm text-gray-500 line-clamp-1 mt-1" title={book.author_name}>{book.author_name || "Unknown Author"}</p></div> {token && ( <button onClick={(e) => { e.preventDefault(); e.stopPropagation(); onAddToCart(book.id); }} aria-label={`Add ${book.title} to cart`} className="mt-auto w-full max-w-[160px] mx-auto px-3 py-1.5 rounded bg-indigo-600 text-white font-medium text-xs hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 flex items-center justify-center space-x-1.5 transition-colors"><ShoppingCartIcon className="h-4 w-4" /><span>Add to Cart</span></button> )} </div> </div> </Link> );
 };
 
-
-// --- Компонент ShopPage с ДОПОЛНИТЕЛЬНЫМИ ЛОГАМИ ---
+// --- Компонент ShopPage ---
 const ShopPage = () => {
-    // Состояния, хуки (без изменений)
+    // Состояния
     const [books, setBooks] = useState([]);
     const [filters, setFilters] = useState({ genre_name: "", author_name: "", year: "", title: "", sort_by: "date" });
     const [genres, setGenres] = useState([]);
-    const [loading, setLoading] = useState(true); // Начинаем с true, пока не загрузим данные
+    const [loading, setLoading] = useState(true);
     const [isFilterPanelOpen, setIsFilterPanelOpen] = useState(false);
+    const [initialLoadComplete, setInitialLoadComplete] = useState(false);
+
+    // Хуки
     const token = localStorage.getItem("token");
     const navigate = useNavigate();
     const location = useLocation();
 
-    // Эффект для поиска (без изменений)
+    // Эффект синхронизации URL -> Filters State
     useEffect(() => {
+        console.log("[ShopPage] useEffect[location.search] triggered. Current filters before update:", filters);
         const queryParams = new URLSearchParams(location.search);
-        const searchQuery = queryParams.get("search");
-        if (searchQuery && searchQuery !== filters.title) {
-            console.log("Applying search query from URL:", searchQuery);
-            setFilters((prev) => ({ genre_name: "", author_name: "", year: "", sort_by: "date", title: searchQuery }));
+        let filtersChanged = false;
+        // Создаем копию не из стейта, а из дефолтных значений + URL,
+        // чтобы избежать влияния предыдущего стейта при быстрой навигации
+        const defaultFilters = { genre_name: "", author_name: "", year: "", title: "", sort_by: "date" };
+        const newFilters = { ...defaultFilters };
+
+        const filterKeys = ['genre_name', 'author_name', 'year', 'sort_by']; // Title/Search обрабатываем отдельно
+
+        // Обработка title/search
+        const searchParam = queryParams.get('search');
+        const titleParam = queryParams.get('title');
+        const titleValue = searchParam ?? titleParam; // Приоритет у 'search'
+
+        if (titleValue !== null) {
+            newFilters.title = titleValue;
+             // Если пришел 'search', очищаем другие фильтры в newFilters
+             if (searchParam !== null) {
+                 console.log("[ShopPage] Resetting other filters in newFilters due to 'search' param.");
+                 newFilters.genre_name = "";
+                 newFilters.author_name = "";
+                 newFilters.year = "";
+             }
         }
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [location.search]);
 
-    // --- Функция fetchBooks с ДОПОЛНИТЕЛЬНЫМИ ЛОГАМИ ---
-    const fetchBooks = useCallback(async () => {
-        console.log("%cFetching books with filters:", "color: blue; font-weight: bold;", filters);
-        setLoading(true); // Устанавливаем загрузку перед запросом
-        setBooks([]); // Очищаем предыдущие книги перед новым запросом (опционально, но помогает)
-        try {
-            const params = new URLSearchParams(
-                Object.entries(filters).filter(([, value]) => value !== "" && value !== null)
-            ).toString();
-            console.log(`%cRequesting: ${API_URL}/shop/?${params}`, "color: gray;");
 
-            const response = await axios.get(`${API_URL}/shop/?${params}`, {
-                headers: token ? { Authorization: `Bearer ${token}` } : {},
-            });
-
-            console.log("%cAPI Response Received:", "color: green;", response);
-
-            // Более строгая проверка данных
-            if (!response || !response.data || !Array.isArray(response.data)) {
-                console.error("API did not return a valid array:", response?.data);
-                toast.error("Received invalid data from server.", { position: "bottom-right" });
-                setBooks([]); // Убедимся, что книги пустые
-                throw new Error("Invalid data format received from API");
-            }
-
-            console.log(`%cReceived ${response.data.length} books from API.`, "color: green;");
-
-            // Обработка данных и обновление состояния
-            const processedBooks = response.data.map(bookData => {
-                if (typeof bookData.is_favorite === 'undefined' || typeof bookData.id === 'undefined') {
-                    console.warn("Book data missing 'id' or 'is_favorite':", bookData);
+        // Обработка остальных ключей (если нет 'search')
+        if (searchParam === null) { // Применяем остальные фильтры только если не было явного поиска
+            filterKeys.forEach(key => {
+                const valueFromUrl = queryParams.get(key);
+                if (valueFromUrl !== null) {
+                    newFilters[key] = valueFromUrl;
                 }
-                 let imagePath = null;
-                 if (bookData.img) {
-                     imagePath = bookData.img.startsWith('http') || bookData.img.startsWith('/')
-                         ? bookData.img
-                         : `/static/images/books/${bookData.img}`;
-                 }
-                // Возвращаем объект, даже если есть предупреждения
-                return {
-                    id: bookData.id, // ID обязателен для ключа
-                    title: bookData.title || "No Title",
-                    author_name: bookData.author_name || "Unknown Author",
-                    is_favorite: bookData.is_favorite ?? false, // Используем ?? для дефолта false, если null/undefined
-                    img: imagePath,
-                };
-            }).filter(book => book.id); // Дополнительно отфильтруем книги без ID
-
-            console.log("%cProcessed Books:", "color: purple;", processedBooks);
-            setBooks(processedBooks); // Обновляем состояние
-
-        } catch (err) {
-             // Логируем ошибку перед показом toast
-             console.error("Fetch books error details:", err.response || err.message || err);
-             if (!axios.isCancel(err)) { // Не показываем ошибку, если запрос был отменен
-                 toast.error("Failed to load books. Please check connection or filters.", { position: "bottom-right" });
-             }
-             setBooks([]); // Гарантированно очищаем книги при любой ошибке
-        } finally {
-            console.log("%cSetting loading to false", "color: orange;");
-            setLoading(false); // В любом случае убираем загрузку
+            });
         }
-    }, [filters, token]); // Зависимости
 
-    // --- Функция fetchGenres с логами ---
-    const fetchGenres = useCallback(async () => {
-        console.log("%cFetching genres...", "color: blue;");
+        // Сравниваем newFilters с текущим состоянием filters
+        // Преобразуем в строки для простого сравнения
+        if (JSON.stringify(newFilters) !== JSON.stringify(filters)) {
+            console.log("[ShopPage] Updating filters state from URL params:", newFilters);
+            setFilters(newFilters); // Обновляем стейт, если есть разница
+            filtersChanged = true; // Отмечаем изменение (хотя setFilters уже достаточно)
+        } else {
+             console.log("[ShopPage] Filters from URL match current state, no update needed.");
+        }
+
+    }, [location.search]); // Следим только за search частью URL
+
+
+    // Функция загрузки книг (useCallback остается полезным)
+    const fetchBooks = useCallback(async () => {
+        // Эта функция теперь будет вызываться в useEffect ниже, когда filters ИЗМЕНЯТСЯ
+        console.log("%c[ShopPage] Fetching books triggered. Filters:", "color: blue; font-weight: bold;", filters);
+        setLoading(true);
         try {
-            const response = await axios.get(`${API_URL}/shop/genres/`);
-            console.log("%cGenres API Response:", "color: green;", response);
-             if (!Array.isArray(response.data)) {
-                console.error("API /shop/genres/ did not return an array:", response.data);
-                throw new Error("Invalid data format received for genres");
-            }
-            const sortedGenres = response.data.sort((a, b) => (a.name || "").localeCompare(b.name || ""));
-            console.log("%cProcessed Genres:", "color: purple;", sortedGenres);
-            setGenres(sortedGenres);
-        } catch (err) {
-             console.error("Fetch genres error details:", err.response || err.message || err);
-             if (!axios.isCancel(err)) {
-                toast.error("Failed to load genres.", { position: "bottom-right" });
-             }
-            setGenres([]);
+            const params = new URLSearchParams( Object.entries(filters).filter(([, value]) => value !== "" && value !== null) ).toString();
+            console.log(`%c[ShopPage] Requesting: ${API_URL}/shop/?${params}`, "color: gray;");
+            const response = await axios.get(`${API_URL}/shop/?${params}`, { headers: token ? { Authorization: `Bearer ${token}` } : {}, });
+            // ... (обработка ответа и setBooks без изменений) ...
+            console.log("%c[ShopPage] Books API Response:", "color: green;", response);
+            if (!Array.isArray(response.data)) { throw new Error("Invalid book data format"); }
+            console.log(`%c[ShopPage] Received ${response.data.length} books.`, "color: green;");
+            const processedBooks = response.data.map(bookData => { if (typeof bookData.is_favorite === 'undefined' || typeof bookData.id === 'undefined') { console.warn("Book data missing 'id' or 'is_favorite':", bookData); } let imagePath = null; if (bookData.img) { imagePath = bookData.img.startsWith('http') || bookData.img.startsWith('/') ? bookData.img : `${BOOK_IMG_PREFIX}${bookData.img}`; } return { id: bookData.id, title: bookData.title || "No Title", author_name: bookData.author_name || "Unknown Author", is_favorite: bookData.is_favorite ?? false, img: imagePath, }; }).filter(book => book.id);
+            console.log("%c[ShopPage] Processed Books:", "color: purple;", processedBooks);
+            setBooks(processedBooks);
+        } catch (err) { /* ... обработка ошибок ... */ console.error("[ShopPage] Fetch books error details:", err.response || err.message || err); if (!axios.isCancel(err)) { toast.error("Failed to load books.", { position: "bottom-right" }); } setBooks([]);
+        } finally {
+            console.log("%c[ShopPage] Setting loading to false", "color: orange;");
+            setLoading(false);
+            if (!initialLoadComplete) setInitialLoadComplete(true);
         }
-    }, []);
+    // Зависим от filters и token.
+    }, [filters, token, initialLoadComplete]); // Добавили initialLoadComplete в зависимости useCallback
 
-    // Эффекты для вызова fetch'ей (без изменений)
+
+    // Функция загрузки жанров (без изменений)
+    const fetchGenres = useCallback(async () => { /* ... */ console.log("%c[ShopPage] Fetching genres...", "color: blue;"); try { const response = await axios.get(`${API_URL}/genres/`); console.log("%c[ShopPage] Genres API Response:", "color: green;", response); if (!Array.isArray(response.data)) { throw new Error("Invalid genre data format"); } const sortedGenres = response.data.sort((a, b) => (a.name || "").localeCompare(b.name || "")); console.log("%c[ShopPage] Processed Genres:", "color: purple;", sortedGenres); setGenres(sortedGenres); } catch (err) { console.error("[ShopPage] Fetch genres error details:", err.response || err.message || err); if (!axios.isCancel(err)) { toast.error("Failed to load genres.", { position: "bottom-right" }); } setGenres([]); } }, []);
+
+
+    // --- ИЗМЕНЕННЫЙ useEffect для вызова fetchBooks ---
     useEffect(() => {
+        // Вызываем fetchBooks каждый раз, когда filters или token меняются
+        // Не зависим от fetchBooks (ссылки функции) напрямую
+        console.log("%c[ShopPage] useEffect[filters, token] triggered. Calling fetchBooks.", "color: magenta;");
         fetchBooks();
-    }, [fetchBooks]);
+    }, [filters, token, fetchBooks]); // <-- ЗАВИСИМОСТЬ ОТ filters И token (и fetchBooks для линтера)
+    // --- КОНЕЦ ИЗМЕНЕНИЯ ---
 
-    useEffect(() => {
-        fetchGenres();
-    }, [fetchGenres]);
+    // useEffect для fetchGenres (без изменений)
+    useEffect(() => { fetchGenres(); }, [fetchGenres]);
 
-    // Обработчики (без изменений)
+
+    // Обработчик изменения фильтров (обновляет URL)
     const handleFilterChange = (e) => {
         const { name, value } = e.target;
-        setFilters((prevFilters) => ({ ...prevFilters, [name]: value }));
-    };
-    const addToFavorites = async (bookId) => { /* ... код без изменений ... */
-        if (!token) { toast.info("Please log in to add favorites.", { position: "bottom-right" }); navigate("/login"); return; }
-        try { await axios.post(`${API_URL}/shop/favorites/${bookId}`, {}, { headers: { Authorization: `Bearer ${token}` } }); setBooks(prevBooks => prevBooks.map(book => book.id === bookId ? { ...book, is_favorite: true } : book)); toast.success("Added to favorites!", { position: "bottom-right", autoClose: 2000 }); } catch (err) { const errorMsg = err.response?.data?.detail || "Failed to add to favorites"; toast.error(errorMsg, { position: "bottom-right" }); console.error("Add favorite error:", err.response || err); }
-    };
-    const removeFromFavorites = async (bookId) => { /* ... код без изменений ... */
-        if (!token) { navigate("/login"); return; }
-        try { await axios.delete(`${API_URL}/shop/favorites/${bookId}`, { headers: { Authorization: `Bearer ${token}` } }); setBooks(prevBooks => prevBooks.map(book => book.id === bookId ? { ...book, is_favorite: false } : book)); toast.success("Removed from favorites!", { position: "bottom-right", autoClose: 2000 }); } catch (err) { const errorMsg = err.response?.data?.detail || "Failed to remove favorite"; toast.error(errorMsg, { position: "bottom-right" }); console.error("Remove favorite error:", err.response || err); }
-    };
-    const handleAddToCart = async (bookId) => { /* ... код без изменений ... */
-        if (!token) { toast.info("Please log in to add to cart.", { position: "bottom-right" }); navigate("/login"); return; } console.log(`Adding ${bookId} to cart...`); // setLoading(true); // Можно добавить индикатор для кнопки
-        try { const response = await axios.post(`${API_URL}/shop/basket/${bookId}`, {}, { headers: { Authorization: `Bearer ${token}` } }); toast.success(response.data.message || "Added to cart!", { position: "bottom-right", autoClose: 2000 }); console.log("Add to cart response:", response.data); } catch (err) { const errorMsg = err.response?.data?.detail || "Failed to add to cart"; toast.error(errorMsg, { position: "bottom-right" }); console.error("Add to cart error:", err.response || err); } // finally { setLoading(false); }
+        const searchParams = new URLSearchParams(location.search);
+        if (value) { searchParams.set(name, value); }
+        else { searchParams.delete(name); }
+        // При изменении фильтра вручную, удаляем 'search' параметр? (Опционально)
+        // searchParams.delete('search');
+        navigate(`${location.pathname}?${searchParams.toString()}`, { replace: true });
+        // useEffect[location.search] обновит filters state
     };
 
-    // --- JSX Разметка с ДОПОЛНИТЕЛЬНЫМИ ЛОГАМИ ---
-    // Добавим лог перед return
-    console.log("%cRendering ShopPage. State:", "color: brown;", { loading, booksLength: books?.length, books: books, genresLength: genres?.length, isFilterPanelOpen });
+    // Функции Избранного и Корзины (без изменений)
+    const addToFavorites = async (bookId) => { /* ... */ if (!token) { toast.info("Please log in..."); navigate("/login"); return; } try { await axios.post(`${API_URL}/shop/favorites/${bookId}`, {}, { headers: { Authorization: `Bearer ${token}` } }); setBooks(prev => prev.map(b => b.id === bookId ? { ...b, is_favorite: true } : b)); toast.success("Added to favorites!", { autoClose: 1500 }); } catch (err) { toast.error(err.response?.data?.detail || "Failed add favorite"); console.error("AddFavErr:", err.response||err); } };
+    const removeFromFavorites = async (bookId) => { /* ... */ if (!token) return; try { await axios.delete(`${API_URL}/shop/favorites/${bookId}`, { headers: { Authorization: `Bearer ${token}` } }); setBooks(prev => prev.map(b => b.id === bookId ? { ...b, is_favorite: false } : b)); toast.success("Removed favorite", { autoClose: 1500 }); } catch (err) { toast.error(err.response?.data?.detail || "Failed remove favorite"); console.error("RemFavErr:", err.response||err); } };
+    const handleAddToCart = async (bookId) => { /* ... */ if (!token) { toast.info("Please log in..."); navigate("/login"); return; } try { const response = await axios.post(`${API_URL}/shop/basket/${bookId}`, { quantity: 1 }, { headers: { Authorization: `Bearer ${token}` } }); toast.success(response.data.message || "Added to cart!", { autoClose: 1500 }); } catch (err) { toast.error(err.response?.data?.detail || "Failed add to cart"); console.error("AddCartErr:", err.response||err); } };
 
+    // --- JSX Разметка (без изменений) ---
     return (
-        <div className="flex flex-col md:flex-row min-h-screen bg-gray-100">
+        <div className="flex flex-col md:flex-row min-h-screen">
             <FilterPanel filters={filters} genres={genres} onFilterChange={handleFilterChange} isOpen={isFilterPanelOpen} onClose={() => setIsFilterPanelOpen(false)} />
-            <main className="flex-1 p-4 md:p-6">
-                <div className="mb-4 text-right md:hidden">
-                    <button type="button" onClick={() => setIsFilterPanelOpen(true)} className="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500" aria-expanded={isFilterPanelOpen} aria-controls="filter-panel">
-                        <FunnelIcon className="h-5 w-5 mr-2" aria-hidden="true" /> Filters
-                    </button>
-                </div>
-
-                {/* Условия рендеринга */}
-                {loading ? (
-                     <div className="flex justify-center items-center pt-16"> <p className="text-gray-600 text-lg animate-pulse">Loading books...</p> </div>
-                ) : !books || books.length === 0 ? ( // Проверяем books после загрузки
-                     <div className="text-center py-10 px-4"> <svg className="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true"> <path vectorEffect="non-scaling-stroke" strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" /> </svg> <h3 className="mt-2 text-lg font-medium text-gray-900">No books found</h3> <p className="mt-1 text-sm text-gray-500">No books matched your current filters. Try adjusting your search criteria.</p> </div>
-                ) : (
-                    // Сетка книг
-                    <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 md:gap-6">
-                        {/* Лог перед началом цикла map */}
-                        {console.log("%cMapping books to BookCard components...", "color: darkcyan;")}
-                        {books.map((book, index) => {
-                            // Лог для каждого элемента перед рендерингом карточки
-                             console.log(`%c -> Mapping book index ${index}:`, "color: lightgray;", book);
-                             // Проверка на наличие ID остается важной
-                             return book && book.id ? (
-                                 <BookCard
-                                     key={book.id}
-                                     book={book}
-                                     token={token}
-                                     onAddToFavorites={addToFavorites}
-                                     onRemoveFromFavorites={removeFromFavorites}
-                                     onAddToCart={handleAddToCart}
-                                 />
-                            ) : (
-                                 console.warn(`%c --> Skipping render for book at index ${index} due to missing id:`, "color: red;", book),
-                                 null // Явно возвращаем null, если пропускаем
-                            );
-                        })}
-                    </div>
-                )}
+            <main className="flex-1 p-4 md:p-6 bg-gray-100">
+                 <div className="mb-4 text-right md:hidden"> <button type="button" onClick={() => setIsFilterPanelOpen(true)} className="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500" aria-expanded={isFilterPanelOpen} aria-controls="filter-panel"> <FunnelIcon className="h-5 w-5 mr-2" aria-hidden="true" /> Filters </button> </div>
+                 {loading ? ( <div className="flex justify-center items-center pt-16 h-[calc(100vh-10rem)]"> <svg className="animate-spin h-12 w-12 text-indigo-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"> <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle> <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path> </svg> </div>
+                 ) : !books || books.length === 0 ? ( initialLoadComplete ? ( <div className="text-center py-16 px-4 flex flex-col items-center justify-center h-[calc(100vh-10rem)]"> <InboxIcon className="mx-auto h-16 w-16 text-gray-400" /> <h3 className="mt-2 text-lg font-medium text-gray-900">No Books Found</h3> <p className="mt-1 text-sm text-gray-500">No books matched filters. Try adjusting or reset.</p> <button onClick={() => { const defaultFilters = { genre_name: "", author_name: "", year: "", title: "", sort_by: "date" }; setFilters(defaultFilters); navigate(location.pathname, { replace: true }); }} className="mt-6 px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50" > Reset Filters </button> </div> ) : ( <div className="flex justify-center items-center pt-16 h-[calc(100vh-10rem)]"> <svg className="animate-spin h-12 w-12 text-indigo-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"> <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle> <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path> </svg> </div> )
+                 ) : ( <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 md:gap-6"> {books.map((book) => ( book && book.id ? ( <BookCard key={book.id} book={book} token={token} onAddToFavorites={addToFavorites} onRemoveFromFavorites={removeFromFavorites} onAddToCart={handleAddToCart} /> ) : null ))} </div> )}
             </main>
         </div>
     );
 };
 
 // --- PropTypes (без изменений) ---
-FilterPanel.propTypes = { /* ... */
-    filters: PropTypes.shape({ genre_name: PropTypes.string, author_name: PropTypes.string, year: PropTypes.string, title: PropTypes.string, sort_by: PropTypes.string, }).isRequired, genres: PropTypes.arrayOf( PropTypes.shape({ id: PropTypes.oneOfType([PropTypes.string, PropTypes.number]), name: PropTypes.string, }) ).isRequired, onFilterChange: PropTypes.func.isRequired, isOpen: PropTypes.bool.isRequired, onClose: PropTypes.func.isRequired,
-};
-BookCard.propTypes = { /* ... */
-    book: PropTypes.shape({ id: PropTypes.oneOfType([PropTypes.string, PropTypes.number]).isRequired, title: PropTypes.string.isRequired, img: PropTypes.string, author_name: PropTypes.string.isRequired, is_favorite: PropTypes.bool, }).isRequired, token: PropTypes.string, onAddToFavorites: PropTypes.func.isRequired, onRemoveFromFavorites: PropTypes.func.isRequired, onAddToCart: PropTypes.func.isRequired,
-};
+FilterPanel.propTypes = { /* ... */ filters: PropTypes.shape({ genre_name: PropTypes.string, author_name: PropTypes.string, year: PropTypes.string, title: PropTypes.string, sort_by: PropTypes.string, }).isRequired, genres: PropTypes.arrayOf( PropTypes.shape({ id: PropTypes.oneOfType([PropTypes.string, PropTypes.number]).isRequired, name: PropTypes.string.isRequired, }) ).isRequired, onFilterChange: PropTypes.func.isRequired, isOpen: PropTypes.bool.isRequired, onClose: PropTypes.func.isRequired, };
+BookCard.propTypes = { /* ... */ book: PropTypes.shape({ id: PropTypes.oneOfType([PropTypes.string, PropTypes.number]).isRequired, title: PropTypes.string.isRequired, img: PropTypes.string, author_name: PropTypes.string.isRequired, is_favorite: PropTypes.bool, }).isRequired, token: PropTypes.string, onAddToFavorites: PropTypes.func.isRequired, onRemoveFromFavorites: PropTypes.func.isRequired, onAddToCart: PropTypes.func.isRequired, };
 
 export default ShopPage;
