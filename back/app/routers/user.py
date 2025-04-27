@@ -24,14 +24,11 @@ router = APIRouter(prefix="/users", tags=["User"])
 )
 def get_current_user(
     current_user: User = Depends(get_current_user_required),
-    db: Session = Depends(get_db)  # Оставляем для консистентности, хотя не используется
+    db: Session = Depends(get_db)  
 ):
-    """
-    Retrieve the authenticated user's information.
-    """
+    
     try:
-        # Поскольку current_user уже проверен в get_current_user_required,
-        # повторный запрос к базе не нужен
+        
         logger.info(f"User {current_user.id} retrieved their profile")
         return current_user
     except Exception as e:
@@ -40,8 +37,8 @@ def get_current_user(
 
 @router.post(
     "/logout",
-    response_model=None,  # Нет тела ответа
-    status_code=204,  # No Content
+    response_model=None, 
+    status_code=204, 
     description="Log out the current user by invalidating the client-side token",
     responses={
         204: {"description": "Logout successful"},
@@ -55,7 +52,7 @@ def logout(
     Log out the current user. The client should remove the token.
     """
     logger.info(f"User {current_user.id} logged out")
-    # FastAPI stateless, поэтому просто возвращаем 204
+    
     return None
 
 @router.get(
@@ -73,10 +70,7 @@ def get_admin_data(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user_required)
 ):
-    """
-    Retrieve admin dashboard data, such as the total number of users.
-    Only accessible to users with role_id=1 (admin).
-    """
+   
     if current_user.role_id != 1:
         logger.warning(f"User {current_user.id} attempted admin access without permission")
         raise HTTPException(status_code=403, detail="Admin access required")

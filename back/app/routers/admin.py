@@ -82,7 +82,7 @@ def create_book(
         release_date=release_date_obj,
         favorites_count=0,
         img=img_path,
-        price=price  # Используем переданную цену
+        price=price  
     )
 
     try:

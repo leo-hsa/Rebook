@@ -9,9 +9,9 @@ from utils.deps import get_current_user_optional, get_current_user_required
 
 router = APIRouter(prefix="/shop", tags=["Shop"])
 
-# Внутри функции get_books в вашем FastAPI роутере
 
-@router.get("/", response_model=List[BookShopMainResponse]) # Убедитесь, что используется ОБНОВЛЕННАЯ схема
+
+@router.get("/", response_model=List[BookShopMainResponse]) 
 def get_books(
     db: Session = Depends(get_db),
     user: Optional[User] = Depends(get_current_user_optional),
@@ -20,14 +20,13 @@ def get_books(
     year: Optional[int] = Query(None, description="Filter by release year"),
     title: Optional[str] = Query(None, description="Search by book title"),
     sort_by: Optional[str] = Query("date", description="Sort by 'date' or 'popularity'"),
-    limit: int = Query(20, ge=1, le=100, description="Limit of records"), # Можно увеличить лимит по умолчанию
+    limit: int = Query(20, ge=1, le=100, description="Limit of records"), 
     offset: int = Query(0, ge=0, description="Offset for pagination")
 ):
-    # Запрос к базе данных - убедитесь, что Book.id доступен
-    # Ваш текущий запрос db.query(Book) уже загружает все поля, включая id
-    query = db.query(Book).outerjoin(Genre, Book.genre_id == Genre.id).outerjoin(Author, Book.author_id == Author.id) # Используем outerjoin
+    
+    query = db.query(Book).outerjoin(Genre, Book.genre_id == Genre.id).outerjoin(Author, Book.author_id == Author.id) 
 
-    # ... (фильтры) ...
+    
     if genre_name:
         query = query.filter(Genre.name.ilike(f"%{genre_name}%"))
     if author_name:
@@ -37,33 +36,33 @@ def get_books(
     if title:
         query = query.filter(Book.title.ilike(f"%{title}%"))
 
-    # ... (сортировка) ...
+    
     if sort_by == "popularity":
         query = query.order_by(desc(Book.favorites_count), desc(Book.release_date))
     else:
         query = query.order_by(desc(Book.release_date))
 
-    # ... (пагинация) ...
+    
     books = query.limit(limit).offset(offset).all()
 
-    # Получение ID избранных книг для текущего пользователя
-    favorite_book_ids = set() # Изменил имя для ясности
+    
+    favorite_book_ids = set() 
     if user:
-        # Оптимизация: выбираем только book_id
+        
         favorites = db.query(Favorite.book_id).filter(Favorite.user_id == user.id).all()
         favorite_book_ids = {fav.book_id for fav in favorites}
 
-    # --- ИСПРАВЛЕННЫЙ RETURN ---
+ 
     response_data = []
     for book in books:
-        is_fav = book.id in favorite_book_ids # Рассчитываем статус
+        is_fav = book.id in favorite_book_ids 
         response_data.append(
             BookShopMainResponse(
-                id=str(book.id),  # <--- ДОБАВЛЕНО: Передаем ID книги (конвертируем в строку)
+                id=str(book.id),  
                 title=book.title,
-                img=f"/static/images/books/{book.img}" if book.img else None, # Лучше None, чем строка с default.jpg
+                img=f"/static/images/books/{book.img}" if book.img else None,
                 author_name=book.author.name if book.author else "Unknown Author",
-                is_favorite=is_fav  # <--- ДОБАВЛЕНО: Передаем рассчитанный статус избранного
+                is_favorite=is_fav 
             )
         )
 
